@@ -1,0 +1,40 @@
+name: Generate Page from VK Link
+
+on:
+  workflow_dispatch:
+    inputs:
+      vk_url:
+        description: 'Ссылка на тему или пост ВК'
+        required: true
+        type: string
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: pip install beautifulsoup4 requests
+
+      - name: Run generator script
+        env:
+          INPUT_URL: ${{ inputs.vk_url }}
+        run: python generate.py
+
+      - name: Commit and push changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          git diff --quiet && git diff --staged --quiet || git commit -m "chore: add new page from VK"
+          git push
