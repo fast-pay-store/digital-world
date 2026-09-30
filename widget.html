@@ -90,30 +90,31 @@
     el.dispatchEvent(new Event('change', { bubbles: true }));
   }
 
-  // Подбираем поле по подписи рядом с input'ом
+  // Подбираем поле по подписи: сначала ищем элемент с точным текстом
+  // подписи ("Название бота", "Ключ бота"), потом input в его блоке
   function matchInput(root, labelText) {
+    var nodes = root.querySelectorAll('label, div, span, td, b, strong, p');
+    for (var i = 0; i < nodes.length; i++) {
+      var el = nodes[i];
+      var t = el.textContent.replace(/\s+/g, ' ').trim();
+      if (t.indexOf(labelText) !== 0) continue;        // начинается с текста подписи
+      if (t.length > labelText.length + 12) continue;  // только мусор типа "*" / "?" рядом
+      if (!el.offsetParent) continue;                  // скрытый
+      // input внутри самой подписи
+      var direct = el.querySelector('input, textarea');
+      if (direct) return direct;
+      // input в том же блоке, что и подпись (поднимаемся не выше виджета)
+      var scope = el.parentElement;
+      for (var up = 0; scope && up < 4 && scope !== root; up++, scope = scope.parentElement) {
+        var inp = scope.querySelector('input, textarea');
+        if (inp) return inp;
+      }
+    }
+    // Запасной вариант: подпись в placeholder самого поля
     var inputs = root.querySelectorAll('input, textarea');
-    for (var i = 0; i < inputs.length; i++) {
-      var inp = inputs[i];
-      if (!inp.offsetParent) continue; // пропускаем скрытые
-      // 0) placeholder / aria-label / name самого поля
-      if (inp.placeholder && inp.placeholder.indexOf(labelText) !== -1) return inp;
-      if (inp.getAttribute('aria-label') && inp.getAttribute('aria-label').indexOf(labelText) !== -1) return inp;
-      // 1) классический label с for=
-      if (inp.id) {
-        var lab = root.querySelector('label[for="' + inp.id + '"]');
-        if (lab && lab.textContent.indexOf(labelText) !== -1) return inp;
-      }
-      // 2) label внутри которого лежит input
-      var parentLabel = inp.closest('label');
-      if (parentLabel && parentLabel.textContent.indexOf(labelText) !== -1) return inp;
-      // 3) подпись в МАЛЕНЬКОМ блоке рядом с полем (не выше 3 уровней,
-      //    и блок должен быть коротким — иначе это весь виджет целиком)
-      var box = inp.parentElement;
-      for (var up = 0; box && up < 3; up++, box = box.parentElement) {
-        var t = box.textContent.replace(/\s+/g, ' ').trim();
-        if (t.indexOf(labelText) !== -1 && t.length < 150) return inp;
-      }
+    for (var j = 0; j < inputs.length; j++) {
+      if (inputs[j].placeholder && inputs[j].placeholder.indexOf(labelText) !== -1)
+        return inputs[j];
     }
     return null;
   }
