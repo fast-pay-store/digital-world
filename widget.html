@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Купить</title>
+<style>
+  body { font-family: Arial, sans-serif; background: #f5f5f5; display: flex;
+         justify-content: center; padding-top: 40px; margin: 0; }
+</style>
+</head>
+<body>
+<div id="widget"></div>
+<script>
+  // === Читаем параметры из ссылки: ?id=5959089&lang=ru ===
+  var q = new URLSearchParams(location.search);
+  var id   = q.get('id')   || '5959089';  // товар по умолчанию, если id не передали
+  var lang = q.get('lang') || '';         // язык (ru, en...), можно оставить пустым
+
+  // === Создаём виджет с этими параметрами ===
+  var div = document.createElement('div');
+  div.className = 'digiseller-buy-standalone';
+  div.setAttribute('data-id', id);
+  div.setAttribute('data-owner', '0');
+  div.setAttribute('data-lang', lang);
+  div.setAttribute('data-img', '1');
+  div.setAttribute('data-img-size', '180');
+  div.setAttribute('data-name', '1');
+  div.setAttribute('data-price', '1');
+  div.setAttribute('data-no-price', '0');
+  document.getElementById('widget').appendChild(div);
+
+  // === Подключение Digiseller ===
+  !function(e){var l=function(l){return e.cookie.match(new RegExp("(?:^|; )digiseller-"+l+"=([^;]*)"))},i=l("lang"),s=l("cart_uid"),t=i?"?lang="+i[1]:"",d=s?"&cart_uid="+s[1]:"",r=e.getElementsByTagName("head")[0]||e.documentElement,n=e.createElement("link"),a=e.createElement("script");n.type="text/css",n.rel="stylesheet",n.id="digiseller-css",n.href="//shop.digiseller.com/xml/store2_css.asp?seller_id=816991",a.async=!0,a.id="digiseller-js",a.src="//digiseller.com/store2/digiseller-api.js.asp?seller_id=816991"+t+d,!e.getElementById(n.id)&&r.appendChild(n),!e.getElementById(a.id)&&r.appendChild(a)}(document);
+</script>
+</body>
+</html>
