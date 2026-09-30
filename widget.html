@@ -10,27 +10,16 @@
   .card { background: #fff; border-radius: 12px; padding: 24px 32px;
           box-shadow: 0 2px 10px rgba(0,0,0,.1); max-width: 420px; width: 100%; }
   h1 { font-size: 20px; margin: 0 0 16px; }
-  .field { margin-bottom: 12px; font-size: 15px; }
-  .field b { display: block; color: #888; font-size: 12px; margin-bottom: 2px; }
-  .buy { display: block; text-align: center; background: #1a73e8; color: #fff;
-         text-decoration: none; padding: 14px; border-radius: 8px;
-         font-size: 16px; margin-top: 16px; }
-  .buy:hover { background: #1557b0; }
-  .warn { color: #c00; font-size: 13px; margin-top: 10px; display: none; }
 </style>
 </head>
 <body>
 <div class="card">
   <h1>Оплата лицензии</h1>
-  <div class="field"><b>Название бота</b><span id="v-name">—</span></div>
-  <div class="field"><b>Ключ бота (HWID)</b><span id="v-key">—</span></div>
   <div id="widget"></div>
-  <a class="buy" id="pay" href="#">Перейти к оплате</a>
-  <div class="warn" id="warn">Не переданы параметры name/key — оплата без привязки к боту!</div>
 </div>
 <script>
-  // === Читаем параметры из ссылки:
-  // ?name=Название бота&key=HWID — обязательные
+  // === Параметры ссылки:
+  // ?name=Название бота&key=HWID — заполнят поля в виджете
   // &id=5959089 — товар Digiseller (по умолчанию 5959089)
   // &lang=ru — язык (по умолчанию ru)
   var q    = new URLSearchParams(location.search);
@@ -39,12 +28,7 @@
   var id   = q.get('id')   || '5959089';
   var lang = q.get('lang') || 'ru';
 
-  // Показываем, что привяжем к покупке
-  document.getElementById('v-name').textContent = name || '—';
-  document.getElementById('v-key').textContent  = key  || '—';
-  if (!name || !key) document.getElementById('warn').style.display = 'block';
-
-  // Запоминаем, чтобы не потерялось при переходах
+  // Запоминаем, чтобы не потерялось при возврате на страницу
   try {
     if (key)  localStorage.setItem('buy_key', key);
     if (name) localStorage.setItem('buy_name', name);
@@ -52,14 +36,7 @@
     name = name || localStorage.getItem('buy_name') || '';
   } catch (e) {}
 
-  // Кнопка оплаты: ключ уходит в Digiseller как uid_c —
-  // Digiseller сохранит его в покупке (колонка UID, видно в API)
-  var pay = document.getElementById('pay');
-  pay.href = 'https://shop.digiseller.com/asp2/pay.asp?id_d=' + encodeURIComponent(id)
-           + '&uid_c=' + encodeURIComponent(key)
-           + '&lang=' + encodeURIComponent(lang);
-
-  // === Виджет Digiseller (цена/описание товара) ===
+  // === Виджет Digiseller ===
   var div = document.createElement('div');
   div.className = 'digiseller-buy-standalone';
   div.setAttribute('data-id', id);
@@ -75,10 +52,9 @@
   // === Подключение Digiseller ===
   !function(e){var l=function(l){return e.cookie.match(new RegExp("(?:^|; )digiseller-"+l+"=([^;]*)"))},i=l("lang"),s=l("cart_uid"),t=i?"?lang="+i[1]:"",d=s?"&cart_uid="+s[1]:"",r=e.getElementsByTagName("head")[0]||e.documentElement,n=e.createElement("link"),a=e.createElement("script");n.type="text/css",n.rel="stylesheet",n.id="digiseller-css",n.href="//shop.digiseller.com/xml/store2_css.asp?seller_id=816991",a.async=!0,a.id="digiseller-js",a.src="//digiseller.com/store2/digiseller-api.js.asp?seller_id=816991"+t+d,!e.getElementById(n.id)&&r.appendChild(n),!e.getElementById(a.id)&&r.appendChild(a)}(document);
 
-  // === НОВОЕ: заполняем поля ВНУТРИ виджета Digiseller ===
+  // === Автозаполнение полей внутри виджета (name/key из ссылки) ===
   // Виджет рисует поля асинхронно (React), поэтому ждём появления input'ов.
-  // У React контролируемые поля: просто присвоить .value недостаточно —
-  // значение надо ставить "родным" сеттером и кидать событие input.
+  // У React контролируемые поля: значение ставим "родным" сеттером + событие input.
 
   function setNativeValue(el, value) {
     var proto = el.tagName === 'TEXTAREA'
@@ -90,9 +66,8 @@
     el.dispatchEvent(new Event('change', { bubbles: true }));
   }
 
-  // Подбираем поле по подписи. Стратегия: находим САМЫЙ КОРОТКИЙ элемент,
-  // чей текст содержит подпись (это и есть подпись, даже если внутри
-  // "*" и значки), затем ищем input: внутри него, у родителей, у соседей.
+  // Находим самый короткий элемент, содержащий текст подписи,
+  // затем input: внутри него, у родителей или у соседей справа
   function matchInput(root, labelText) {
     var best = null;
     var all = root.querySelectorAll('*');
@@ -101,23 +76,19 @@
       if (t.indexOf(labelText) === -1) continue;
       if (!best || t.length < best.t.length) best = { el: all[i], t: t };
     }
-    if (best) {
-      if (window.console) console.log('[widget] подпись "' + labelText + '" -> элемент:', best.el.tagName, '| текст: "' + best.t + '"');
-      var direct = best.el.querySelector && best.el.querySelector('input, textarea');
-      if (direct) return direct;
-      var scope = best.el.parentElement;
-      for (var up = 0; scope && up < 4 && scope !== root; up++, scope = scope.parentElement) {
-        var inp = scope.querySelector('input, textarea');
-        if (inp) return inp;
-      }
-      var sib = best.el.nextElementSibling;
-      for (var s = 0; sib && s < 3; s++, sib = sib.nextElementSibling) {
-        if (sib.matches && sib.matches('input, textarea')) return sib;
-        var inner = sib.querySelector && sib.querySelector('input, textarea');
-        if (inner) return inner;
-      }
-    } else if (window.console) {
-      console.log('[widget] подпись "' + labelText + '" НЕ НАЙДЕНА в разметке виджета');
+    if (!best) return null;
+    var direct = best.el.querySelector && best.el.querySelector('input, textarea');
+    if (direct) return direct;
+    var scope = best.el.parentElement;
+    for (var up = 0; scope && up < 4 && scope !== root; up++, scope = scope.parentElement) {
+      var inp = scope.querySelector('input, textarea');
+      if (inp) return inp;
+    }
+    var sib = best.el.nextElementSibling;
+    for (var s = 0; sib && s < 3; s++, sib = sib.nextElementSibling) {
+      if (sib.matches && sib.matches('input, textarea')) return sib;
+      var inner = sib.querySelector && sib.querySelector('input, textarea');
+      if (inner) return inner;
     }
     return null;
   }
@@ -127,26 +98,19 @@
     attempts++;
     var root = document.querySelector('#widget .digiseller-buy-standalone')
             || document.querySelector('.digiseller-buy-standalone');
-    if (!root || attempts > 150) { // ~30 секунд максимум
-      if (attempts > 100) clearInterval(timer);
-      return;
-    }
-    if (attempts === 1 && window.console) {
-      var dbg = root.querySelectorAll('input, textarea');
-      console.log('[widget] полей в виджете: ' + dbg.length);
-      for (var di = 0; di < dbg.length; di++)
-        console.log('[widget] поле ' + di + ': type=' + dbg[di].type + ' id=' + dbg[di].id + ' name=' + dbg[di].name + ' placeholder=' + dbg[di].placeholder);
-    }
+    if (!root) { if (attempts > 150) clearInterval(timer); return; }
     var filled = 0;
     if (name) {
       var inpName = matchInput(root, 'Название бота');
       if (inpName && !inpName.value) { setNativeValue(inpName, name); filled++; }
+      else if (inpName && inpName.value) filled++;
     }
     if (key) {
       var inpKey = matchInput(root, 'Ключ бота');
       if (inpKey && !inpKey.value) { setNativeValue(inpKey, key); filled++; }
+      else if (inpKey && inpKey.value) filled++;
     }
-    if ((name && key && filled >= 2) || (!name && !key) || attempts > 40) {
+    if ((name && key && filled >= 2) || (!name && !key) || attempts > 50) {
       clearInterval(timer);
     }
   }, 200);
