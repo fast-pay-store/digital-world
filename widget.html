@@ -74,6 +74,67 @@
 
   // === Подключение Digiseller ===
   !function(e){var l=function(l){return e.cookie.match(new RegExp("(?:^|; )digiseller-"+l+"=([^;]*)"))},i=l("lang"),s=l("cart_uid"),t=i?"?lang="+i[1]:"",d=s?"&cart_uid="+s[1]:"",r=e.getElementsByTagName("head")[0]||e.documentElement,n=e.createElement("link"),a=e.createElement("script");n.type="text/css",n.rel="stylesheet",n.id="digiseller-css",n.href="//shop.digiseller.com/xml/store2_css.asp?seller_id=816991",a.async=!0,a.id="digiseller-js",a.src="//digiseller.com/store2/digiseller-api.js.asp?seller_id=816991"+t+d,!e.getElementById(n.id)&&r.appendChild(n),!e.getElementById(a.id)&&r.appendChild(a)}(document);
+
+  // === НОВОЕ: заполняем поля ВНУТРИ виджета Digiseller ===
+  // Виджет рисует поля асинхронно (React), поэтому ждём появления input'ов.
+  // У React контролируемые поля: просто присвоить .value недостаточно —
+  // значение надо ставить "родным" сеттером и кидать событие input.
+
+  function setNativeValue(el, value) {
+    var proto = el.tagName === 'TEXTAREA'
+      ? window.HTMLTextAreaElement.prototype
+      : window.HTMLInputElement.prototype;
+    var setter = Object.getOwnPropertyDescriptor(proto, 'value').set;
+    setter.call(el, value);
+    el.dispatchEvent(new Event('input',  { bubbles: true }));
+    el.dispatchEvent(new Event('change', { bubbles: true }));
+  }
+
+  // Подбираем поле по подписи рядом с input'ом
+  function matchInput(root, labelText) {
+    var inputs = root.querySelectorAll('input, textarea');
+    for (var i = 0; i < inputs.length; i++) {
+      var inp = inputs[i];
+      if (!inp.offsetParent) continue; // пропускаем скрытые
+      // 1) классический label с for=
+      if (inp.id) {
+        var lab = root.querySelector('label[for="' + inp.id + '"]');
+        if (lab && lab.textContent.indexOf(labelText) !== -1) return inp;
+      }
+      // 2) label внутри которого лежит input
+      var parentLabel = inp.closest('label');
+      if (parentLabel && parentLabel.textContent.indexOf(labelText) !== -1) return inp;
+      // 3) поднимаемся вверх по родителям и ищем текст подписи в блоке
+      var box = inp.parentElement;
+      for (var up = 0; box && up < 4; up++, box = box.parentElement) {
+        if (box.textContent.indexOf(labelText) !== -1) return inp;
+      }
+    }
+    return null;
+  }
+
+  var attempts = 0;
+  var timer = setInterval(function () {
+    attempts++;
+    var root = document.querySelector('#widget .digiseller-buy-standalone')
+            || document.querySelector('.digiseller-buy-standalone');
+    if (!root || attempts > 100) { // ~20 секунд максимум
+      if (attempts > 100) clearInterval(timer);
+      return;
+    }
+    var filled = 0;
+    if (name) {
+      var inpName = matchInput(root, 'Название бота');
+      if (inpName && !inpName.value) { setNativeValue(inpName, name); filled++; }
+    }
+    if (key) {
+      var inpKey = matchInput(root, 'Ключ бота');
+      if (inpKey && !inpKey.value) { setNativeValue(inpKey, key); filled++; }
+    }
+    if ((name && key && filled >= 2) || (!name && !key) || attempts > 40) {
+      clearInterval(timer);
+    }
+  }, 200);
 </script>
 </body>
 </html>
