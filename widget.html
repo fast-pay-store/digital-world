@@ -3,21 +3,63 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Купить</title>
+<title>Оплата лицензии</title>
 <style>
   body { font-family: Arial, sans-serif; background: #f5f5f5; display: flex;
          justify-content: center; padding-top: 40px; margin: 0; }
+  .card { background: #fff; border-radius: 12px; padding: 24px 32px;
+          box-shadow: 0 2px 10px rgba(0,0,0,.1); max-width: 420px; width: 100%; }
+  h1 { font-size: 20px; margin: 0 0 16px; }
+  .field { margin-bottom: 12px; font-size: 15px; }
+  .field b { display: block; color: #888; font-size: 12px; margin-bottom: 2px; }
+  .buy { display: block; text-align: center; background: #1a73e8; color: #fff;
+         text-decoration: none; padding: 14px; border-radius: 8px;
+         font-size: 16px; margin-top: 16px; }
+  .buy:hover { background: #1557b0; }
+  .warn { color: #c00; font-size: 13px; margin-top: 10px; display: none; }
 </style>
 </head>
 <body>
-<div id="widget"></div>
+<div class="card">
+  <h1>Оплата лицензии</h1>
+  <div class="field"><b>Название бота</b><span id="v-name">—</span></div>
+  <div class="field"><b>Ключ бота (HWID)</b><span id="v-key">—</span></div>
+  <div id="widget"></div>
+  <a class="buy" id="pay" href="#">Перейти к оплате</a>
+  <div class="warn" id="warn">Не переданы параметры name/key — оплата без привязки к боту!</div>
+</div>
 <script>
-  // === Читаем параметры из ссылки: ?id=5959089&lang=ru ===
-  var q = new URLSearchParams(location.search);
-  var id   = q.get('id')   || '5959089';  // товар по умолчанию, если id не передали
-  var lang = q.get('lang') || '';         // язык (ru, en...), можно оставить пустым
+  // === Читаем параметры из ссылки:
+  // ?name=Название бота&key=HWID — обязательные
+  // &id=5959089 — товар Digiseller (по умолчанию 5959089)
+  // &lang=ru — язык (по умолчанию ru)
+  var q    = new URLSearchParams(location.search);
+  var name = q.get('name') || '';
+  var key  = q.get('key')  || '';
+  var id   = q.get('id')   || '5959089';
+  var lang = q.get('lang') || 'ru';
 
-  // === Создаём виджет с этими параметрами ===
+  // Показываем, что привяжем к покупке
+  document.getElementById('v-name').textContent = name || '—';
+  document.getElementById('v-key').textContent  = key  || '—';
+  if (!name || !key) document.getElementById('warn').style.display = 'block';
+
+  // Запоминаем, чтобы не потерялось при переходах
+  try {
+    if (key)  localStorage.setItem('buy_key', key);
+    if (name) localStorage.setItem('buy_name', name);
+    key  = key  || localStorage.getItem('buy_key')  || '';
+    name = name || localStorage.getItem('buy_name') || '';
+  } catch (e) {}
+
+  // Кнопка оплаты: ключ уходит в Digiseller как uid_c —
+  // Digiseller сохранит его в покупке (колонка UID, видно в API)
+  var pay = document.getElementById('pay');
+  pay.href = 'https://shop.digiseller.com/asp2/pay.asp?id_d=' + encodeURIComponent(id)
+           + '&uid_c=' + encodeURIComponent(key)
+           + '&lang=' + encodeURIComponent(lang);
+
+  // === Виджет Digiseller (цена/описание товара) ===
   var div = document.createElement('div');
   div.className = 'digiseller-buy-standalone';
   div.setAttribute('data-id', id);
