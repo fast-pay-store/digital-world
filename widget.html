@@ -90,31 +90,34 @@
     el.dispatchEvent(new Event('change', { bubbles: true }));
   }
 
-  // Подбираем поле по подписи: сначала ищем элемент с точным текстом
-  // подписи ("Название бота", "Ключ бота"), потом input в его блоке
+  // Подбираем поле по подписи. Стратегия: находим САМЫЙ КОРОТКИЙ элемент,
+  // чей текст содержит подпись (это и есть подпись, даже если внутри
+  // "*" и значки), затем ищем input: внутри него, у родителей, у соседей.
   function matchInput(root, labelText) {
-    var nodes = root.querySelectorAll('label, div, span, td, b, strong, p');
-    for (var i = 0; i < nodes.length; i++) {
-      var el = nodes[i];
-      var t = el.textContent.replace(/\s+/g, ' ').trim();
-      if (t.indexOf(labelText) !== 0) continue;        // начинается с текста подписи
-      if (t.length > labelText.length + 12) continue;  // только мусор типа "*" / "?" рядом
-      if (!el.offsetParent) continue;                  // скрытый
-      // input внутри самой подписи
-      var direct = el.querySelector('input, textarea');
+    var best = null;
+    var all = root.querySelectorAll('*');
+    for (var i = 0; i < all.length; i++) {
+      var t = (all[i].textContent || '').replace(/\s+/g, ' ').trim();
+      if (t.indexOf(labelText) === -1) continue;
+      if (!best || t.length < best.t.length) best = { el: all[i], t: t };
+    }
+    if (best) {
+      if (window.console) console.log('[widget] подпись "' + labelText + '" -> элемент:', best.el.tagName, '| текст: "' + best.t + '"');
+      var direct = best.el.querySelector && best.el.querySelector('input, textarea');
       if (direct) return direct;
-      // input в том же блоке, что и подпись (поднимаемся не выше виджета)
-      var scope = el.parentElement;
+      var scope = best.el.parentElement;
       for (var up = 0; scope && up < 4 && scope !== root; up++, scope = scope.parentElement) {
         var inp = scope.querySelector('input, textarea');
         if (inp) return inp;
       }
-    }
-    // Запасной вариант: подпись в placeholder самого поля
-    var inputs = root.querySelectorAll('input, textarea');
-    for (var j = 0; j < inputs.length; j++) {
-      if (inputs[j].placeholder && inputs[j].placeholder.indexOf(labelText) !== -1)
-        return inputs[j];
+      var sib = best.el.nextElementSibling;
+      for (var s = 0; sib && s < 3; s++, sib = sib.nextElementSibling) {
+        if (sib.matches && sib.matches('input, textarea')) return sib;
+        var inner = sib.querySelector && sib.querySelector('input, textarea');
+        if (inner) return inner;
+      }
+    } else if (window.console) {
+      console.log('[widget] подпись "' + labelText + '" НЕ НАЙДЕНА в разметке виджета');
     }
     return null;
   }
@@ -124,9 +127,15 @@
     attempts++;
     var root = document.querySelector('#widget .digiseller-buy-standalone')
             || document.querySelector('.digiseller-buy-standalone');
-    if (!root || attempts > 100) { // ~20 секунд максимум
+    if (!root || attempts > 150) { // ~30 секунд максимум
       if (attempts > 100) clearInterval(timer);
       return;
+    }
+    if (attempts === 1 && window.console) {
+      var dbg = root.querySelectorAll('input, textarea');
+      console.log('[widget] полей в виджете: ' + dbg.length);
+      for (var di = 0; di < dbg.length; di++)
+        console.log('[widget] поле ' + di + ': type=' + dbg[di].type + ' id=' + dbg[di].id + ' name=' + dbg[di].name + ' placeholder=' + dbg[di].placeholder);
     }
     var filled = 0;
     if (name) {
