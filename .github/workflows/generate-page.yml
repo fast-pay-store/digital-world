@@ -17,6 +17,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -31,6 +33,10 @@ jobs:
           INPUT_URL: ${{ inputs.vk_url }}
         run: python generate.py
 
+      # Коммит от этого workflow не запускает «Сборку сайта», поэтому собираем здесь же
+      - name: Update main page and sitemap
+        run: python tools/build_site.py
+
       - name: Commit and push changes
         run: |
           git config --global user.name "github-actions[bot]"
@@ -38,3 +44,9 @@ jobs:
           git add .
           git diff --quiet && git diff --staged --quiet || git commit -m "chore: add new page from VK"
           git push
+
+      - name: Wait for GitHub Pages
+        run: sleep 90
+
+      - name: Notify Yandex (IndexNow)
+        run: python tools/indexnow.py

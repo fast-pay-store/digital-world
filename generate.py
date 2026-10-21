@@ -4,9 +4,14 @@ import json
 import requests
 from bs4 import BeautifulSoup
 
+TRANSLIT = dict(zip('абвгдеёжзийклмнопрстуфхцчшщъыьэюя',
+                    ['a','b','v','g','d','e','e','zh','z','i','y','k','l','m','n','o','p','r','s','t','u','f','h','ts','ch','sh','sch','','y','','e','yu','ya']))
+
 def slugify(text):
-    text = re.sub(r'[^\w\s-]', '', text.lower())
-    return re.sub(r'[-\s]+', '-', text).strip('-')[:50] or 'product'
+    # латиница в адресе: такие ссылки не ломаются в мессенджерах и лучше читаются поисковиками
+    text = ''.join(TRANSLIT.get(c, c) for c in text.lower())
+    text = re.sub(r'[^a-z0-9\s-]', '', text)
+    return re.sub(r'[-\s]+', '-', text).strip('-')[:50].strip('-') or 'product'
 
 def main():
     url = os.environ.get('INPUT_URL')
@@ -37,12 +42,19 @@ def main():
     with open('template.html', 'r', encoding='utf-8') as f:
         template = f.read()
     
-    html_content = template.replace('{{title}}', title)\
-                           .replace('{{description}}', description)\
-                           .replace('{{vk_url}}', url)
-    
     folder_name = slugify(title)
+    if os.path.exists(os.path.join(folder_name, 'index.html')):
+        folder_name = (folder_name + '-' + str(len(registry['processed_urls']) + 1))[:60]
     os.makedirs(folder_name, exist_ok=True)
+
+    import html as _html
+    short = re.sub(r'\s+', ' ', description).strip()[:160]
+    page_url = 'https://fast-pay-store.github.io/digital-world/' + folder_name + '/'
+    html_content = template.replace('{{title}}', _html.escape(title))\
+                           .replace('{{description}}', _html.escape(description).replace('\n\n', '</p><p>'))\
+                           .replace('{{description_short}}', _html.escape(short, quote=True))\
+                           .replace('{{page_url}}', page_url)\
+                           .replace('{{vk_url}}', _html.escape(url, quote=True))
     
     with open(f'{folder_name}/index.html', 'w', encoding='utf-8') as f:
         f.write(html_content)

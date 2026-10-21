@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Страница не найдена</title>
+<!-- Файл создаётся автоматически (tools/build_site.py) из tools/404_template.html -->
+<style>
+  html,body{margin:0;background:#0f1a33;color:#fff;font:16px/1.5 "Segoe UI",Roboto,Arial,sans-serif}
+  .box{max-width:520px;margin:18vh auto;padding:0 20px;text-align:center}
+  h1{font-size:64px;margin:0}
+  p{color:#c9d4ea}
+  a{display:inline-block;margin:8px 6px;padding:12px 20px;border-radius:10px;background:#1d4ed8;color:#fff;text-decoration:none;font-weight:600}
+  a.ghost{background:transparent;border:1px solid rgba(255,255,255,.3)}
+</style>
+</head>
+<body>
+  <div class="box">
+    <h1>404</h1>
+    <p>Такой страницы нет — возможно, она переехала. Все страницы сайта есть на главной.</p>
+    <a href="{{BASE}}">На главную</a>
+    <a class="ghost" href="{{CONTACT_URL}}" target="_blank" rel="noopener">Написать в Telegram</a>
+  </div>
+</body>
+</html>

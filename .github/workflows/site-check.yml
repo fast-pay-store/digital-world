@@ -1,0 +1,35 @@
+name: Проверка сайта и ссылок (→ Telegram)
+
+# Каждый день в 08:23 по Москве и после каждой сборки сайта:
+# открываются ли все страницы, живы ли ссылки на них (включая программу в Google),
+# нет ли запрета индексации и других SEO-ошибок.
+# При проблеме — сообщение в Telegram (секреты TG_BOT_TOKEN и TG_CHAT_ID) и письмо от GitHub.
+on:
+  schedule:
+    - cron: '23 5 * * *'
+  workflow_run:
+    workflows: ['Сборка сайта (главная, sitemap, IndexNow)']
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      send_always:
+        description: 'Прислать отчёт в Telegram, даже если всё в порядке (проверка бота)'
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Проверить страницы и ссылки
+        env:
+          TG_BOT_TOKEN: ${{ secrets.TG_BOT_TOKEN }}
+          TG_CHAT_ID: ${{ secrets.TG_CHAT_ID }}
+          SEND_ALWAYS: ${{ inputs.send_always }}
+        run: python3 tools/check_site.py

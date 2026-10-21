@@ -1,0 +1,52 @@
+name: Сборка сайта (главная, sitemap, IndexNow)
+
+# Запускается при любом изменении в репозитории и вручную.
+# Пересобирает главную страницу со списком страниц, sitemap.xml и 404.html,
+# затем сообщает Яндексу через IndexNow, что сайт обновился.
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - 'index.html'
+      - 'sitemap.xml'
+      - '404.html'
+      - 'README.md'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: site-build
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # нужна история, чтобы брать даты изменения страниц
+
+      - name: Собрать главную, sitemap и 404
+        run: python3 tools/build_site.py
+
+      - name: Сохранить изменения
+        id: commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A index.html sitemap.xml 404.html .nojekyll
+          if git diff --staged --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            git commit -m "chore: обновлены главная страница и sitemap"
+            git push
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Подождать публикацию на GitHub Pages
+        run: sleep 90
+
+      - name: Сообщить Яндексу (IndexNow)
+        run: python3 tools/indexnow.py

@@ -2,11 +2,18 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{title}}</title>
+    <meta name="description" content="{{description_short}}">
+    <link rel="canonical" href="{{page_url}}">
+    <meta property="og:title" content="{{title}}">
+    <meta property="og:description" content="{{description_short}}">
+    <meta property="og:url" content="{{page_url}}">
+    <style>body{font-family:"Segoe UI",Roboto,Arial,sans-serif;max-width:720px;margin:40px auto;padding:0 16px;line-height:1.5}a{color:#1d4ed8}</style>
 </head>
 <body>
     <h1>{{title}}</h1>
     <p>{{description}}</p>
-    <a href="{{vk_url}}">Перейти к источнику</a>
+    <p><a href="{{vk_url}}">Перейти к источнику</a> · <a href="../">Все страницы сайта</a></p>
 </body>
 </html>

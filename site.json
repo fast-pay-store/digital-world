@@ -1,0 +1,18 @@
+{
+  "title": "Digital World — программы, боты и онлайн-сервисы",
+  "heading": "Digital World",
+  "description": "Каталог программ, игровых ботов и онлайн-сервисов: описания, демо-версии и доступ.",
+  "base_url": "https://fast-pay-store.github.io/digital-world/",
+  "contact_url": "https://t.me/konctantin777",
+  "contact_text": "Telegram @konctantin777",
+  "order": [
+    "pechat-lko"
+  ],
+  "exclude": [
+    "tools"
+  ],
+  "indexnow_key": "ca96c76830b34778ff3c90622aed511b",
+  "check_also": [
+    "https://script.google.com/macros/s/AKfycbyfetjbig_vxHsKFoPlWXqlYPeAlMJVw6FlS2UNyNNL0OpqhojmFgiD9uQE6mnVKZYxeQ/exec"
+  ]
+}

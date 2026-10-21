@@ -1,0 +1,170 @@
+"""Собирает главную страницу (список страниц сайта), sitemap.xml и 404.html.
+
+Страница сайта = любая папка в корне репозитория, где есть index.html.
+Название и описание берутся из <title> и <meta name="description"> этой страницы.
+Порядок и исключения — в site.json. Запуск: python tools/build_site.py
+Только стандартная библиотека Python — ничего устанавливать не нужно.
+"""
+import html
+import json
+import os
+import re
+import subprocess
+import sys
+from datetime import datetime, timezone
+from html.parser import HTMLParser
+from urllib.parse import quote
+
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+os.chdir(ROOT)
+
+
+class HeadParser(HTMLParser):
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.title, self.desc, self.robots, self.first_p = '', '', '', ''
+        self._in_title = self._in_p = False
+
+    def handle_starttag(self, tag, attrs):
+        a = {k.lower(): (v or '') for k, v in attrs}
+        if tag == 'title' and not self.title:
+            self._in_title = True
+        elif tag == 'meta':
+            name = (a.get('name') or a.get('property') or '').lower()
+            if name == 'description' and not self.desc:
+                self.desc = a.get('content', '')
+            elif name == 'og:description' and not self.desc:
+                self.desc = a.get('content', '')
+            elif name == 'robots':
+                self.robots = a.get('content', '')
+        elif tag == 'p' and not self.first_p:
+            self._in_p = True
+
+    def handle_endtag(self, tag):
+        if tag == 'title':
+            self._in_title = False
+        if tag == 'p':
+            self._in_p = False
+
+    def handle_data(self, data):
+        if self._in_title:
+            self.title += data
+        elif self._in_p and len(self.first_p) < 400:
+            self.first_p += data
+
+
+def short(text, limit=170):
+    text = re.sub(r'\s+', ' ', text or '').strip()
+    if len(text) <= limit:
+        return text
+    cut = text[:limit]
+    dot = max(cut.rfind('. '), cut.rfind('! '), cut.rfind('? '))
+    return (cut[:dot + 1] if dot > 60 else cut.rsplit(' ', 1)[0] + '…')
+
+
+def git_date(path):
+    try:
+        out = subprocess.run(['git', 'log', '-1', '--format=%cI', '--', path],
+                             capture_output=True, text=True, timeout=20).stdout.strip()
+        if out:
+            return datetime.fromisoformat(out)
+    except Exception:
+        pass
+    return datetime.fromtimestamp(os.path.getmtime(path), tz=timezone.utc)
+
+
+def read_page(folder):
+    path = os.path.join(folder, 'index.html')
+    with open(path, encoding='utf-8', errors='ignore') as f:
+        head = f.read(400_000)  # большие сохранённые страницы — читаем только начало
+    p = HeadParser()
+    try:
+        p.feed(head)
+    except Exception:
+        pass
+    title = re.sub(r'\s+', ' ', p.title).strip() or folder
+    desc = short(p.desc or p.first_p)
+    if desc.lower().startswith('подробности в источнике'):
+        desc = ''
+    return {
+        'folder': folder,
+        'url_path': quote(folder) + '/',
+        'title': title,
+        'desc': desc,
+        'noindex': 'noindex' in p.robots.lower(),
+        'date': git_date(path),
+    }
+
+
+def main():
+    cfg = json.load(open('site.json', encoding='utf-8'))
+    base = cfg['base_url'].rstrip('/') + '/'
+    exclude = set(cfg.get('exclude', []))
+    pages = []
+    for name in sorted(os.listdir('.')):
+        if name.startswith(('.', '_')) or name in exclude or not os.path.isdir(name):
+            continue
+        if os.path.isfile(os.path.join(name, 'index.html')):
+            pages.append(read_page(name))
+
+    order = cfg.get('order', [])
+    pages.sort(key=lambda p: (order.index(p['folder']) if p['folder'] in order else len(order),
+                              -p['date'].timestamp()))
+    listed = [p for p in pages if not p['noindex']] + [p for p in pages if p['noindex']]
+
+    # ---------- главная ----------
+    cards = []
+    for p in listed:
+        cards.append(
+            '<a class="card" href="{u}"><h2>{t}</h2>{d}<span class="go">Открыть →</span></a>'.format(
+                u=html.escape(p['url_path']), t=html.escape(p['title']),
+                d=('<p>' + html.escape(p['desc']) + '</p>') if p['desc'] else ''))
+    items_ld = [{'@type': 'ListItem', 'position': i + 1, 'url': base + p['url_path'], 'name': p['title']}
+                for i, p in enumerate(listed)]
+    ld = json.dumps({'@context': 'https://schema.org', '@type': 'ItemList', 'itemListElement': items_ld},
+                    ensure_ascii=False, indent=1)
+    tpl = open(os.path.join('tools', 'index_template.html'), encoding='utf-8').read()
+    out = (tpl.replace('{{TITLE}}', html.escape(cfg['title']))
+              .replace('{{HEADING}}', html.escape(cfg['heading']))
+              .replace('{{DESCRIPTION}}', html.escape(cfg['description']))
+              .replace('{{BASE}}', html.escape(base))
+              .replace('{{CONTACT_URL}}', html.escape(cfg['contact_url']))
+              .replace('{{CONTACT_TEXT}}', html.escape(cfg['contact_text']))
+              .replace('{{COUNT}}', str(len(listed)))
+              .replace('{{CARDS}}', '\n      '.join(cards))
+              .replace('{{JSONLD}}', ld))
+    write('index.html', out)
+
+    # ---------- 404 ----------
+    t404 = open(os.path.join('tools', '404_template.html'), encoding='utf-8').read()
+    write('404.html', t404.replace('{{BASE}}', html.escape(base))
+                          .replace('{{CONTACT_URL}}', html.escape(cfg['contact_url'])))
+
+    # ---------- sitemap ----------
+    newest = max([p['date'] for p in pages] or [datetime.now(timezone.utc)])
+    rows = ['  <url><loc>{}</loc><lastmod>{}</lastmod></url>'.format(base, newest.date().isoformat())]
+    for p in pages:
+        if p['noindex']:
+            continue
+        rows.append('  <url><loc>{}</loc><lastmod>{}</lastmod></url>'.format(
+            html.escape(base + p['url_path']), p['date'].date().isoformat()))
+    write('sitemap.xml', '<?xml version="1.0" encoding="UTF-8"?>\n'
+          '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + '\n'.join(rows) + '\n</urlset>\n')
+
+    # без Jekyll: страницы отдаются как есть и сайт обновляется быстрее
+    write('.nojekyll', '')
+
+    print('Страниц: %d (в sitemap: %d)' % (len(pages), sum(1 for p in pages if not p['noindex'])))
+    for p in listed:
+        print('  %s %s — %s' % ('[noindex]' if p['noindex'] else '        ', p['folder'], p['title']))
+
+
+def write(path, text):
+    old = open(path, encoding='utf-8').read() if os.path.exists(path) else None
+    if old != text:
+        with open(path, 'w', encoding='utf-8', newline='\n') as f:
+            f.write(text)
+
+
+if __name__ == '__main__':
+    sys.exit(main())
