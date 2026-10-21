@@ -15,6 +15,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Проверка связи с API Вебмастера
+        continue-on-error: true
+        run: |
+          curl -4 -sS -m 25 -o /dev/null -w "IPv4: %{http_code}\n" https://api.webmaster.yandex.net/v4/user || true
+          curl -6 -sS -m 25 -o /dev/null -w "IPv6: %{http_code}\n" https://api.webmaster.yandex.net/v4/user || true
+          curl -sS -m 25 -o /dev/null -w "yandex.ru: %{http_code}\n" https://yandex.ru || true
       - name: Отчёт
         env:
           YANDEX_WEBMASTER_TOKEN: ${{ secrets.YANDEX_WEBMASTER_TOKEN }}
