@@ -6,7 +6,6 @@
 <link rel="icon" href="https://fast-pay-store.github.io/digital-world/assets/favicon.svg" type="image/svg+xml">
 <link rel="icon" href="https://fast-pay-store.github.io/digital-world/assets/favicon-120.png" sizes="120x120" type="image/png">
 <link rel="apple-touch-icon" href="https://fast-pay-store.github.io/digital-world/assets/apple-touch-icon.png">
-
 <title>Печать личных карточек работника ЧОО на бланк ЛКО — онлайн-сервис</title>
 <meta name="description" content="Онлайн-сервис для печати личной карточки охранника на бланк ЛКО: введите ФИО, наименование ЧОО, руководителя и дату — данные печатаются точно в поля бланка. Предпросмотр, база сотрудников, настройка под принтер.">
 <meta property="og:type" content="website">
@@ -37,7 +36,8 @@
     {"@type":"Question","name":"Какие поля заполняются?","acceptedAnswer":{"@type":"Answer","text":"Фамилия, имя, отчество работника; сокращённое наименование частной охранной организации; должность, инициалы и фамилия руководителя; дата выдачи."}},
     {"@type":"Question","name":"Принтер печатает со смещением. Что делать?","acceptedAnswer":{"@type":"Answer","text":"Один раз сделайте тестовую печать на ксерокопию бланка и укажите сдвиг в миллиметрах. Настройка сохранится."}},
     {"@type":"Question","name":"Нужно ли устанавливать программу?","acceptedAnswer":{"@type":"Answer","text":"Нет. Сервис открывается по ссылке в браузере."}},
-    {"@type":"Question","name":"Как получить доступ?","acceptedAnswer":{"@type":"Answer","text":"Напишите в Telegram @konctantin777 — выдадим логин и пароль."}}
+    {"@type":"Question","name":"Как получить доступ?","acceptedAnswer":{"@type":"Answer","text":"Зарегистрируйтесь в сервисе: придумайте логин и пароль. Первые 3 дня — бесплатно, без оплаты и без карты."}},
+    {"@type":"Question","name":"Как оплатить после пробного периода?","acceptedAnswer":{"@type":"Answer","text":"В сервисе нажмите «Продлить» и выберите число дней. Оплата картой или другими способами; время начисляется автоматически за 1–5 минут, оплаченные дни прибавляются к оставшимся."}}
   ]
 }
 </script>
@@ -93,21 +93,6 @@
   }
 
 </style>
-<!-- metrika:start (вставляется автоматически tools/build_site.py, номер — site.json → metrika_id) -->
-<script type="text/javascript">
-(function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};m[i].l=1*new Date();
-for(var j=0;j<document.scripts.length;j++){if(document.scripts[j].src===r){return;}}
-k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
-(window,document,'script','https://mc.yandex.ru/metrika/tag.js?id=113717630','ym');
-ym(113717630,'init',{ssr:true,webvisor:true,clickmap:true,ecommerce:"dataLayer",referrer:document.referrer,url:location.href,accurateTrackBounce:true,trackLinks:true});
-document.addEventListener("click",function(e){var el=e.target;if(!el||!el.closest)return;
-if(el.closest(".digiseller-buy-standalone")&&el.closest("button,a,input[type=submit]")){ym(113717630,"reachGoal","checkout");return;}
-var a=el.closest("a[href]");if(!a)return;var h=a.href;
-var g=/widget\.html|oplata\.info|digiseller|keys\.shop|plati\.market/.test(h)?"buy":/drive\.google|disk\.yandex|vk\.(com|ru)\/topic-/.test(h)?"download":/vk\.(com|ru)\/app\d|roblox\.com\/games|script\.google\.com/.test(h)?"play":/t\.me\/|vk\.(com|ru)\/board/.test(h)?"contact":"";
-if(g)ym(113717630,"reachGoal",g);},true);
-</script>
-<noscript><div><img src="https://mc.yandex.ru/watch/113717630" style="position:absolute;left:-9999px" alt=""></div></noscript>
-<!-- metrika:end -->
 </head>
 <body>
   <section class="lp-hero">
@@ -128,10 +113,10 @@ if(g)ym(113717630,"reachGoal",g);},true);
       </div>
 
       <div class="lp-card">
-        <h2>Для клиентов</h2>
-        <p class="hint" style="margin:4px 0 18px">Вход по логину и паролю, выданным администратором.</p>
-        <a class="lp-btn" href="https://script.google.com/macros/s/AKfycbyfetjbig_vxHsKFoPlWXqlYPeAlMJVw6FlS2UNyNNL0OpqhojmFgiD9uQE6mnVKZYxeQ/exec">Войти в сервис</a>
-        <a class="lp-btn ghost" href="https://t.me/konctantin777" target="_blank" rel="noopener">Получить доступ — Telegram</a>
+        <h2>Попробуйте бесплатно</h2>
+        <p class="hint" style="margin:4px 0 18px">Первые 3 дня — бесплатно. Регистрация за минуту: логин и пароль, без карты.</p>
+        <a class="lp-btn" href="https://script.google.com/macros/s/AKfycbyfetjbig_vxHsKFoPlWXqlYPeAlMJVw6FlS2UNyNNL0OpqhojmFgiD9uQE6mnVKZYxeQ/exec?reg=1">Начать бесплатно — 3 дня</a>
+        <a class="lp-btn ghost" href="https://script.google.com/macros/s/AKfycbyfetjbig_vxHsKFoPlWXqlYPeAlMJVw6FlS2UNyNNL0OpqhojmFgiD9uQE6mnVKZYxeQ/exec">Войти</a>
       </div>
     </div>
   </section>
@@ -139,7 +124,7 @@ if(g)ym(113717630,"reachGoal",g);},true);
     <h2>Как заполнить бланк личной карточки за минуту</h2>
     <p class="lp-sub">Раньше приходилось выверять текст в Word, печатать на пробу и переделывать — поля «уезжали», координаты сбивались. Здесь раскладка уже выверена по настоящему бланку.</p>
     <div class="lp-steps">
-      <div class="lp-step"><h3>Войдите в сервис</h3><p>По логину и паролю, которые выдаёт администратор. Ничего скачивать и устанавливать не нужно.</p></div>
+      <div class="lp-step"><h3>Зарегистрируйтесь</h3><p>Придумайте логин и пароль — и сразу работайте. Первые 3 дня бесплатно. Ничего скачивать и устанавливать не нужно.</p></div>
       <div class="lp-step"><h3>Заполните 4 поля</h3><p>ФИО работника, сокращённое наименование ЧОО, должность и фамилию руководителя, дату выдачи. Справа сразу виден готовый вид карточки.</p></div>
       <div class="lp-step"><h3>Вставьте бланк и печатайте</h3><p>Бланк ЛКО вставляется в принтер как обычно. Печатается только текст — номер, серия и защита остаются на бланке.</p></div>
     </div>
@@ -167,12 +152,14 @@ if(g)ym(113717630,"reachGoal",g);},true);
     <details><summary>Какие поля заполняются?</summary><p>Фамилия, имя, отчество работника; сокращённое наименование частной охранной организации (в две строки); должность, инициалы и фамилия руководителя или уполномоченного работника; дата выдачи. Фото и подпись — вручную, как обычно.</p></details>
     <details><summary>Принтер печатает со смещением. Что делать?</summary><p>Один раз сделайте тестовую печать на ксерокопию бланка и укажите сдвиг в миллиметрах. Настройка сохранится, и дальше все карточки будут печататься ровно.</p></details>
     <details><summary>Нужно ли устанавливать программу?</summary><p>Нет. Сервис открывается по ссылке в браузере. Нужен только компьютер с принтером.</p></details>
-    <details><summary>Как получить доступ?</summary><p>Напишите в <a href="https://t.me/konctantin777" target="_blank" rel="noopener">Telegram @konctantin777</a> — выдадим логин и пароль.</p></details>
+    <details><summary>Как получить доступ?</summary><p>Зарегистрируйтесь в сервисе: придумайте логин и пароль. Первые 3 дня — бесплатно, без оплаты и без карты. Доступ оформляется на организацию: у каждого сотрудника может быть свой логин, а пробные и оплаченные дни у ЧОО общие — оплатил один, печатают все.</p></details>
+    <details><summary>Как оплатить после пробного периода?</summary><p>В сервисе нажмите «Продлить» и выберите нужное число дней — время добавится вашей организации. Время начисляется автоматически за 1–5 минут; оплаченные дни прибавляются к оставшимся, ничего не сгорает.</p></details>
+    <details><summary>Можно работать с нескольких компьютеров?</summary><p>Да. Вход по логину и паролю с любого компьютера, сохранённые сотрудники и настройка принтера хранятся в вашей учётной записи.</p></details>
   </section>
 
   <footer class="lp-foot" id="contact">
     <div>Печать личных карточек работника ЧОО на бланк ЛКО</div>
-    <div style="margin-top:8px">Доступ и вопросы: <b><a href="https://t.me/konctantin777" target="_blank" rel="noopener">Telegram @konctantin777</a></b></div>
+    <div style="margin-top:8px">Вопросы: <b><a href="https://t.me/konctantin777" target="_blank" rel="noopener">Telegram @konctantin777</a></b></div>
   </footer>
 
 </body>

@@ -113,6 +113,11 @@ if(g)ym(113717630,"reachGoal",g);},true);
     }
     return null;
   }
+  // Подписи полей у разных товаров: боты — «Название бота»/«Ключ бота», Печать ЛКО — «Название программы»/«Ключ организации»
+  function matchAny(root, labels) {
+    for (var i = 0; i < labels.length; i++) { var r = matchInput(root, labels[i]); if (r) return r; }
+    return null;
+  }
 
   var attempts = 0;
   var timer = setInterval(function () {
@@ -122,12 +127,12 @@ if(g)ym(113717630,"reachGoal",g);},true);
     if (!root) { if (attempts > 150) clearInterval(timer); return; }
     var filled = 0;
     if (name) {
-      var inpName = matchInput(root, 'Название бота');
+      var inpName = matchAny(root, ['Название бота', 'Название программы']);
       if (inpName && !inpName.value) { setNativeValue(inpName, name); filled++; }
       else if (inpName && inpName.value) filled++;
     }
     if (key) {
-      var inpKey = matchInput(root, 'Ключ бота');
+      var inpKey = matchAny(root, ['Ключ бота', 'Ключ организации']);
       if (inpKey && !inpKey.value) { setNativeValue(inpKey, key); filled++; }
       else if (inpKey && inpKey.value) filled++;
     }
