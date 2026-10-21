@@ -38,6 +38,8 @@ def fetch(url, method='GET', read=True, timeout=25):
 def drive_view(url):
     """Ссылку Google Drive приводим к /file/d/ID/view: удалённый файл там отвечает 404."""
     m = re.search(r'(?:[?&]id=|/file/d/|/folders/)([A-Za-z0-9_-]{20,})', url)
+    if re.search(r'disk\.yandex\.\w+/(d|i)/', url):  # Яндекс.Диск: страница показывает роботам капчу, спрашиваем API
+        return 'https://cloud-api.yandex.net/v1/disk/public/resources?public_key=' + urllib.parse.quote(url, safe='')
     if m and 'drive.google.com' in url:
         if '/folders/' in url:
             return 'https://drive.google.com/drive/folders/' + m.group(1)
