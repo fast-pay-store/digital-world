@@ -1,10 +1,10 @@
-name: Отчёт Яндекс.Вебмастера (→ Telegram)
+name: Отчёт Яндекс.Вебмастера (только вручную — см. описание)
 
-# По понедельникам в 10:47 МСК и вручную: ИКС, страницы в поиске, проблемы и топ запросов за неделю.
-# Нужен секрет YANDEX_WEBMASTER_TOKEN.
+# ВНИМАНИЕ: API Вебмастера (api.webmaster.yandex.net) не принимает соединения с серверов GitHub
+# (проверено 21.10.2026). Еженедельный отчёт запускается на компьютере владельца:
+# D:\GD\AI_clod\Сайт digital-world\Отчёт Вебмастера (Планировщик Windows, понедельник 11:17).
+# Этот workflow оставлен для ручной проверки — вдруг доступ откроют.
 on:
-  schedule:
-    - cron: '47 7 * * 1'
   workflow_dispatch:
 
 permissions:
@@ -15,12 +15,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Проверка связи с API Вебмастера
-        continue-on-error: true
-        run: |
-          curl -4 -sS -m 25 -o /dev/null -w "IPv4: %{http_code}\n" https://api.webmaster.yandex.net/v4/user || true
-          curl -6 -sS -m 25 -o /dev/null -w "IPv6: %{http_code}\n" https://api.webmaster.yandex.net/v4/user || true
-          curl -sS -m 25 -o /dev/null -w "yandex.ru: %{http_code}\n" https://yandex.ru || true
       - name: Отчёт
         env:
           YANDEX_WEBMASTER_TOKEN: ${{ secrets.YANDEX_WEBMASTER_TOKEN }}
