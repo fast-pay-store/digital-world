@@ -87,6 +87,16 @@
       "name": "Страница оплаты лицензии (widget.html)",
       "url": "https://fast-pay-store.github.io/digital-world/widget.html",
       "must_contain": "digiseller"
+    },
+    {
+      "name": "Товар «Печать ЛКО» (Digiseller 6304383)",
+      "url": "https://api.digiseller.com/api/products/6304383/data?lang=ru-RU",
+      "must_contain": "<retval>0</retval>"
+    },
+    {
+      "name": "Страница оплаты Печати ЛКО (oplata-lko.html)",
+      "url": "https://fast-pay-store.github.io/digital-world/oplata-lko.html",
+      "must_contain": "digiseller"
     }
   ],
   "metrika_id": "113717630"

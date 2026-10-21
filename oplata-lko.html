@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="https://fast-pay-store.github.io/digital-world/assets/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="https://fast-pay-store.github.io/digital-world/assets/favicon-120.png" sizes="120x120" type="image/png">
+<link rel="apple-touch-icon" href="https://fast-pay-store.github.io/digital-world/assets/apple-touch-icon.png">
+<meta name="robots" content="noindex, follow">
+<meta name="description" content="Оплата доступа к сервису «Печать личных карточек работника ЧОО (ЛКО)» через Digiseller.">
+
+<title>Оплата — Печать ЛКО</title>
+<style>
+  body { font-family: Arial, sans-serif; background: #f5f5f5; display: flex;
+         justify-content: center; padding-top: 40px; margin: 0; }
+  .card { background: #fff; border-radius: 12px; padding: 24px 32px;
+          box-shadow: 0 2px 10px rgba(0,0,0,.1); max-width: 420px; width: 100%; }
+  h1 { font-size: 20px; margin: 0 0 10px; }
+  .note { font-size: 13px; color: #555; margin: 0 0 16px; line-height: 1.4; }
+</style>
+<!-- metrika:start (вставляется автоматически tools/build_site.py, номер — site.json → metrika_id) -->
+<script type="text/javascript">
+(function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};m[i].l=1*new Date();
+for(var j=0;j<document.scripts.length;j++){if(document.scripts[j].src===r){return;}}
+k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+(window,document,'script','https://mc.yandex.ru/metrika/tag.js?id=113717630','ym');
+ym(113717630,'init',{ssr:true,webvisor:true,clickmap:true,ecommerce:"dataLayer",referrer:document.referrer,url:location.href,accurateTrackBounce:true,trackLinks:true});
+document.addEventListener("click",function(e){var el=e.target;if(!el||!el.closest)return;
+if(el.closest(".digiseller-buy-standalone")&&el.closest("button,a,input[type=submit]")){ym(113717630,"reachGoal","checkout");return;}
+var a=el.closest("a[href]");if(!a)return;var h=a.href;
+var g=/widget\.html|oplata\.info|digiseller|keys\.shop|plati\.market/.test(h)?"buy":/drive\.google|disk\.yandex|vk\.(com|ru)\/topic-/.test(h)?"download":/vk\.(com|ru)\/app\d|roblox\.com\/games|script\.google\.com/.test(h)?"play":/t\.me\/|vk\.(com|ru)\/board/.test(h)?"contact":"";
+if(g)ym(113717630,"reachGoal",g);},true);
+</script>
+<noscript><div><img src="https://mc.yandex.ru/watch/113717630" style="position:absolute;left:-9999px" alt=""></div></noscript>
+<!-- metrika:end -->
+</head>
+<body>
+<div class="card">
+  <h1>Оплата доступа — Печать ЛКО</h1>
+  <p class="note">Дни добавляются <b>организации</b> — печатать смогут все её сотрудники. Ключ организации подставляется сам из сервиса. Вопросы: <a href="https://t.me/konctantin777" target="_blank" rel="noopener">Telegram @konctantin777</a></p>
+  <div id="widget"></div>
+</div>
+<script>
+  // === СТРАНИЦА ОПЛАТЫ «ПЕЧАТЬ ЛКО» (товар Digiseller 6304383). Для ботов — widget.html.
+  // Ссылку формирует программа ЛКО: ?name=PechatLKO&key=<ключ организации LKO…>&lang=ru
+  var q    = new URLSearchParams(location.search);
+  var name = q.get('name') || '';
+  var key  = q.get('key')  || '';
+  var id   = '6304383';   // всегда товар Печать ЛКО
+  var lang = q.get('lang') || 'ru';
+
+  // Запоминаем, чтобы не потерялось при возврате на страницу
+  try {
+    if (key)  localStorage.setItem('lko_key', key);
+    if (name) localStorage.setItem('lko_name', name);
+    key  = key  || localStorage.getItem('lko_key')  || '';
+    name = name || localStorage.getItem('lko_name') || '';
+  } catch (e) {}
+
+  // === Виджет Digiseller ===
+  var div = document.createElement('div');
+  div.className = 'digiseller-buy-standalone';
+  div.setAttribute('data-id', id);
+  div.setAttribute('data-owner', '0');
+  div.setAttribute('data-lang', lang);
+  div.setAttribute('data-img', '1');
+  div.setAttribute('data-img-size', '180');
+  div.setAttribute('data-name', '1');
+  div.setAttribute('data-price', '1');
+  div.setAttribute('data-no-price', '0');
+  document.getElementById('widget').appendChild(div);
+
+  // === Подключение Digiseller ===
+  !function(e){var l=function(l){return e.cookie.match(new RegExp("(?:^|; )digiseller-"+l+"=([^;]*)"))},i=l("lang"),s=l("cart_uid"),t=i?"?lang="+i[1]:"",d=s?"&cart_uid="+s[1]:"",r=e.getElementsByTagName("head")[0]||e.documentElement,n=e.createElement("link"),a=e.createElement("script");n.type="text/css",n.rel="stylesheet",n.id="digiseller-css",n.href="//shop.digiseller.com/xml/store2_css.asp?seller_id=816991",a.async=!0,a.id="digiseller-js",a.src="//digiseller.com/store2/digiseller-api.js.asp?seller_id=816991"+t+d,!e.getElementById(n.id)&&r.appendChild(n),!e.getElementById(a.id)&&r.appendChild(a)}(document);
+
+  // === Автозаполнение полей внутри виджета (name/key из ссылки) ===
+  // Виджет рисует поля асинхронно (React), поэтому ждём появления input'ов.
+  // У React контролируемые поля: значение ставим "родным" сеттером + событие input.
+
+  function setNativeValue(el, value) {
+    var proto = el.tagName === 'TEXTAREA'
+      ? window.HTMLTextAreaElement.prototype
+      : window.HTMLInputElement.prototype;
+    var setter = Object.getOwnPropertyDescriptor(proto, 'value').set;
+    setter.call(el, value);
+    el.dispatchEvent(new Event('input',  { bubbles: true }));
+    el.dispatchEvent(new Event('change', { bubbles: true }));
+  }
+
+  // Находим самый короткий элемент, содержащий текст подписи,
+  // затем input: внутри него, у родителей или у соседей справа
+  function matchInput(root, labelText) {
+    var best = null;
+    var all = root.querySelectorAll('*');
+    for (var i = 0; i < all.length; i++) {
+      var t = (all[i].textContent || '').replace(/\s+/g, ' ').trim();
+      if (t.indexOf(labelText) === -1) continue;
+      if (!best || t.length < best.t.length) best = { el: all[i], t: t };
+    }
+    if (!best) return null;
+    var direct = best.el.querySelector && best.el.querySelector('input, textarea');
+    if (direct) return direct;
+    var scope = best.el.parentElement;
+    for (var up = 0; scope && up < 4 && scope !== root; up++, scope = scope.parentElement) {
+      var inp = scope.querySelector('input, textarea');
+      if (inp) return inp;
+    }
+    var sib = best.el.nextElementSibling;
+    for (var s = 0; sib && s < 3; s++, sib = sib.nextElementSibling) {
+      if (sib.matches && sib.matches('input, textarea')) return sib;
+      var inner = sib.querySelector && sib.querySelector('input, textarea');
+      if (inner) return inner;
+    }
+    return null;
+  }
+  // Подписи полей товара 6304383. ВАЖНО: в подсказках других полей товара этих слов быть не должно
+  function matchAny(root, labels) {
+    for (var i = 0; i < labels.length; i++) { var r = matchInput(root, labels[i]); if (r) return r; }
+    return null;
+  }
+
+  var attempts = 0;
+  var timer = setInterval(function () {
+    attempts++;
+    var root = document.querySelector('#widget .digiseller-buy-standalone')
+            || document.querySelector('.digiseller-buy-standalone');
+    if (!root) { if (attempts > 150) clearInterval(timer); return; }
+    var filled = 0;
+    if (name) {
+      var inpName = matchAny(root, ['Название программы']);
+      if (inpName && !inpName.value) { setNativeValue(inpName, name); filled++; }
+      else if (inpName && inpName.value) filled++;
+    }
+    if (key) {
+      var inpKey = matchAny(root, ['Ключ организации']);
+      if (inpKey && !inpKey.value) { setNativeValue(inpKey, key); filled++; }
+      else if (inpKey && inpKey.value) filled++;
+    }
+    if ((name && key && filled >= 2) || (!name && !key) || attempts > 50) {
+      clearInterval(timer);
+    }
+  }, 200);
+</script>
+</body>
+</html>
