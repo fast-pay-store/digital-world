@@ -18,7 +18,7 @@
     },
     {
       "text": "Продлить ключ",
-      "href": "../widget.html?name=Raid%20Shadow%20Legends",
+      "href": "../widget.html?id=5959089&lang=ru&name=RaidShadowLegends",
       "kind": "ghost"
     }
   ],
@@ -91,7 +91,7 @@
       "buttons": [
         {
           "text": "Купить или продлить ключ",
-          "href": "../widget.html?name=Raid%20Shadow%20Legends",
+          "href": "../widget.html?id=5959089&lang=ru&name=RaidShadowLegends",
           "kind": "green"
         }
       ],

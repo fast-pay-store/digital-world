@@ -18,7 +18,7 @@
     },
     {
       "text": "Продлить ключ",
-      "href": "../widget.html?name=Tiles%20Survive",
+      "href": "../widget.html?id=5959089&lang=ru&name=TilesSurvive",
       "kind": "ghost"
     }
   ],
@@ -96,7 +96,7 @@
       "buttons": [
         {
           "text": "Купить или продлить ключ",
-          "href": "../widget.html?name=Tiles%20Survive",
+          "href": "../widget.html?id=5959089&lang=ru&name=TilesSurvive",
           "kind": "green"
         }
       ],

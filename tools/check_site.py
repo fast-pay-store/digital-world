@@ -124,6 +124,9 @@ def main():
     print('Проверяю страниц: %d' % len(pages))
     for url in pages:
         code, body, _ = fetch(url, timeout=60)
+        if code == 404:  # сразу после обновления GitHub Pages может ещё выкладывать страницу — ждём и проверяем ещё раз
+            time.sleep(90)
+            code, body, _ = fetch(url, timeout=60)
         if not (200 <= code < 300):
             broken.append('СТРАНИЦА %s → %s' % (urllib.parse.unquote(url), code or body.decode(errors='ignore')))
             continue

@@ -18,7 +18,7 @@
     },
     {
       "text": "Купить лицензию",
-      "href": "../widget.html?name=Shop%20Titans",
+      "href": "../widget.html?id=5959089&lang=ru&name=ShopTitans",
       "kind": "ghost"
     }
   ],
@@ -139,7 +139,7 @@
       "buttons": [
         {
           "text": "Купить или продлить ключ",
-          "href": "../widget.html?name=Shop%20Titans",
+          "href": "../widget.html?id=5959089&lang=ru&name=ShopTitans",
           "kind": "green"
         },
         {

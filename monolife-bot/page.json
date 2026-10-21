@@ -18,7 +18,7 @@
     },
     {
       "text": "Продлить ключ",
-      "href": "../widget.html?name=MonoLife",
+      "href": "../widget.html?id=5959089&lang=ru&name=MonoLife",
       "kind": "ghost"
     }
   ],
@@ -108,7 +108,7 @@
       "buttons": [
         {
           "text": "Купить или продлить ключ",
-          "href": "../widget.html?name=MonoLife",
+          "href": "../widget.html?id=5959089&lang=ru&name=MonoLife",
           "kind": "green"
         }
       ],

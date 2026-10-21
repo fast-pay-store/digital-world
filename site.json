@@ -32,7 +32,8 @@
     "tanki-bitva-s-ii",
     "pereigray-ii",
     "nauchi-skaynet-strelyat",
-    "pechat-lko"
+    "pechat-lko",
+    "world-of-fishers-gid-po-rybam"
   ],
   "exclude": [
     "tools"
@@ -69,14 +70,18 @@
     }
   ],
   "category_of": {
-    "pechat-lko": "servisy",
-    "world-of-fishers-гид-по-рыбам": "servisy"
+    "pechat-lko": "servisy"
   },
   "watch": [
     {
       "name": "Товар «Лицензионный ключ» (Digiseller 5959089)",
       "url": "https://api.digiseller.com/api/products/5959089/data?lang=ru-RU",
-      "must_contain": "\"retval\": 0"
+      "must_contain": "<retval>0</retval>"
+    },
+    {
+      "name": "Витрина товара (keys.shop)",
+      "url": "https://auto-completion.keys.shop/detail/5959089",
+      "must_contain": "License key"
     },
     {
       "name": "Страница оплаты лицензии (widget.html)",

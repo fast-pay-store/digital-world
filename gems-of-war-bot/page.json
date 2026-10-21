@@ -18,7 +18,7 @@
     },
     {
       "text": "Продлить ключ",
-      "href": "../widget.html?name=Gems%20of%20War",
+      "href": "../widget.html?id=5959089&lang=ru&name=GemsOfWar",
       "kind": "ghost"
     }
   ],
@@ -65,7 +65,7 @@
       "buttons": [
         {
           "text": "Купить или продлить ключ",
-          "href": "../widget.html?name=Gems%20of%20War",
+          "href": "../widget.html?id=5959089&lang=ru&name=GemsOfWar",
           "kind": "green"
         }
       ],

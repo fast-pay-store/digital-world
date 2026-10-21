@@ -18,7 +18,7 @@
     },
     {
       "text": "Продлить ключ",
-      "href": "../widget.html?name=Pixel%20Starships",
+      "href": "../widget.html?id=5959089&lang=ru&name=PixelStarships",
       "kind": "ghost"
     }
   ],
@@ -90,7 +90,7 @@
       "buttons": [
         {
           "text": "Купить или продлить ключ",
-          "href": "../widget.html?name=Pixel%20Starships",
+          "href": "../widget.html?id=5959089&lang=ru&name=PixelStarships",
           "kind": "green"
         }
       ],

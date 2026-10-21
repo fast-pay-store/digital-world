@@ -18,7 +18,7 @@
     },
     {
       "text": "Купить лицензию",
-      "href": "../widget.html?name=Trophy%20Fishing%202",
+      "href": "../widget.html?id=5959089&lang=ru&name=TrophyFishing2",
       "kind": "ghost"
     }
   ],
@@ -146,7 +146,7 @@
       "buttons": [
         {
           "text": "Купить лицензию",
-          "href": "../widget.html?name=Trophy%20Fishing%202",
+          "href": "../widget.html?id=5959089&lang=ru&name=TrophyFishing2",
           "kind": "green"
         }
       ],

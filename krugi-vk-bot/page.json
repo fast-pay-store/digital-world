@@ -18,7 +18,7 @@
     },
     {
       "text": "Продлить ключ",
-      "href": "../widget.html?name=%D0%9A%D1%80%D1%83%D0%B3%D0%B8",
+      "href": "../widget.html?id=5959089&lang=ru&name=Krugi",
       "kind": "ghost"
     }
   ],
@@ -65,7 +65,7 @@
       "buttons": [
         {
           "text": "Купить или продлить ключ",
-          "href": "../widget.html?name=%D0%9A%D1%80%D1%83%D0%B3%D0%B8",
+          "href": "../widget.html?id=5959089&lang=ru&name=Krugi",
           "kind": "green"
         }
       ],
