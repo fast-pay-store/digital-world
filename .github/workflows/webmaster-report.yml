@@ -1,0 +1,23 @@
+name: Отчёт Яндекс.Вебмастера (→ Telegram)
+
+# По понедельникам в 10:47 МСК и вручную: ИКС, страницы в поиске, проблемы и топ запросов за неделю.
+# Нужен секрет YANDEX_WEBMASTER_TOKEN.
+on:
+  schedule:
+    - cron: '47 7 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Отчёт
+        env:
+          YANDEX_WEBMASTER_TOKEN: ${{ secrets.YANDEX_WEBMASTER_TOKEN }}
+          TG_BOT_TOKEN: ${{ secrets.TG_BOT_TOKEN }}
+          TG_CHAT_ID: ${{ secrets.TG_CHAT_ID }}
+        run: python3 tools/webmaster_report.py

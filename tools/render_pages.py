@@ -143,7 +143,7 @@ def render(folder, cfg, all_pages):
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{title}</title>
-<meta name="description" content="{desc}">
+<meta name="description" content="{desc}">{robots}
 <link rel="canonical" href="{url}">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Digital World">
@@ -180,7 +180,7 @@ def render(folder, cfg, all_pages):
 </body>
 </html>
 '''.format(title=E(d['title']), desc=E(d['description']), url=E(url), img=E(url + hero_src),
-           ld=json.dumps(ld, ensure_ascii=False), h1=E(d['h1']), cat_id=E(cat_id), cat_name=E(cat_name), lead=d['lead'], cta=buttons(d.get('hero_buttons')),
+           robots=('\n<meta name="robots" content="noindex, follow">' if d.get('noindex') else ''), ld=json.dumps(ld, ensure_ascii=False), h1=E(d['h1']), cat_id=E(cat_id), cat_name=E(cat_name), lead=d['lead'], cta=buttons(d.get('hero_buttons')),
            note=pass_note, hero_img=hero_img, sections=sections, others=others_html, others_h=E(d.get('others_title', 'Другие программы и игры')),
            contacts=''.join('<a href="%s" target="_blank" rel="noopener">%s</a>' % (E(c['href']), E(c['text'])) for c in d.get('contacts', [])),
            disclaimer=d.get('disclaimer', ''))

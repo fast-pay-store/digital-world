@@ -35,17 +35,29 @@ def fetch(url, method='GET', read=True, timeout=25):
         return 0, str(e).encode()[:200], url
 
 
+def drive_view(url):
+    """Ссылку Google Drive приводим к /file/d/ID/view: удалённый файл там отвечает 404."""
+    m = re.search(r'(?:[?&]id=|/file/d/|/folders/)([A-Za-z0-9_-]{20,})', url)
+    if m and 'drive.google.com' in url:
+        if '/folders/' in url:
+            return 'https://drive.google.com/drive/folders/' + m.group(1)
+        return 'https://drive.google.com/file/d/%s/view' % m.group(1)
+    return url
+
+
 def check_link(url):
+    orig = url
+    url = drive_view(url)
     host = urllib.parse.urlsplit(url).hostname or ''
     code = 0
     for attempt in range(2):  # вторая попытка — на случай случайного сбоя сети
         code, _, _ = fetch(url, read=False)
         if 200 <= code < 400:
-            return url, code, 'ok'
+            return orig, code, 'ok'
         if code in (401, 403, 429) or (code == 0 and host.endswith(SOFT_HOSTS)):
-            return url, code, 'warn'
+            return orig, code, 'warn'
         time.sleep(3)
-    return url, code, 'broken'
+    return orig, code, 'broken'
 
 
 def page_urls(base):
@@ -134,6 +146,15 @@ def main():
                 broken.append('ССЫЛКА %s → %s (на странице %s)' % (urllib.parse.unquote(url), code or 'нет ответа', where))
             elif state == 'warn':
                 warns.append('ссылка %s ответила %s (возможно, защита от роботов)' % (urllib.parse.unquote(url), code))
+
+    # Отдельные проверки из site.json → watch: страница должна открываться и содержать нужный текст
+    for w in cfg.get('watch', []):
+        code, body, _ = fetch(w['url'], timeout=40)
+        text = body.decode('utf-8', errors='ignore')
+        if not (200 <= code < 300):
+            broken.append('%s → %s (%s)' % (w['name'], code or 'нет ответа', w['url']))
+        elif w.get('must_contain') and w['must_contain'] not in text:
+            broken.append('%s: на странице нет «%s» — товар снят или страница изменилась (%s)' % (w['name'], w['must_contain'], w['url']))
 
     report = []
     if broken:

@@ -1,0 +1,45 @@
+name: Обсуждения ВК → черновики страниц и Telegram
+
+# Каждый день в 09:41 МСК и вручную: новые темы в обсуждениях «Бот помощник»
+# получают черновик страницы (скрыт от поисковиков) и сообщение в Telegram;
+# изменённые посты и мёртвые ссылки на скачивание — тоже сообщение.
+# Нужен секрет VK_TOKEN (сервисный ключ приложения ВК).
+on:
+  schedule:
+    - cron: '41 6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: site-build
+  cancel-in-progress: false
+
+jobs:
+  watch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Установить Pillow (обложки)
+        run: pip install --quiet pillow
+
+      - name: Проверить обсуждения
+        env:
+          VK_TOKEN: ${{ secrets.VK_TOKEN }}
+          TG_BOT_TOKEN: ${{ secrets.TG_BOT_TOKEN }}
+          TG_CHAT_ID: ${{ secrets.TG_CHAT_ID }}
+        run: python3 tools/vk_watch.py
+
+      - name: Пересобрать сайт и сохранить
+        run: |
+          python3 tools/render_pages.py
+          python3 tools/build_site.py
+          python3 tools/render_pages.py
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A .
+          git diff --staged --quiet || (git commit -m "chore: обсуждения ВК — обновления" && git push)

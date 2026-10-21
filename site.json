@@ -69,5 +69,13 @@
   "category_of": {
     "pechat-lko": "servisy",
     "world-of-fishers-гид-по-рыбам": "servisy"
-  }
+  },
+  "watch": [
+    {
+      "name": "Товар «Ключ для бота» на Plati.Market",
+      "url": "https://plati.market/itm/3907555",
+      "must_contain": "Ключ для бота"
+    }
+  ],
+  "metrika_id": ""
 }

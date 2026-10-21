@@ -5,6 +5,7 @@
 Порядок и исключения — в site.json. Запуск: python tools/build_site.py
 Только стандартная библиотека Python — ничего устанавливать не нужно.
 """
+import glob
 import html
 import json
 import os
@@ -118,7 +119,7 @@ def main():
     order = cfg.get('order', [])
     pages.sort(key=lambda p: (order.index(p['folder']) if p['folder'] in order else len(order),
                               -p['date'].timestamp()))
-    listed = [p for p in pages if not p['noindex']] + [p for p in pages if p['noindex']]
+    listed = [p for p in pages if not p['noindex']]  # черновики (noindex) на главной не показываем
 
     # ---------- главная (по категориям) ----------
     cat_of = cfg.get('category_of', {})
@@ -174,9 +175,46 @@ def main():
     # без Jekyll: страницы отдаются как есть и сайт обновляется быстрее
     write('.nojekyll', '')
 
+    # счётчик Яндекс.Метрики и цели на кнопках (если указан metrika_id в site.json)
+    inject_metrika(cfg)
+
     print('Страниц: %d (в sitemap: %d)' % (len(pages), sum(1 for p in pages if not p['noindex'])))
     for p in listed:
         print('  %s %s — %s' % ('[noindex]' if p['noindex'] else '        ', p['folder'], p['title']))
+
+
+METRIKA = '''<!-- metrika:start (вставляется автоматически tools/build_site.py, номер — site.json → metrika_id) -->
+<script>
+(function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};m[i].l=1*new Date();
+for(var j=0;j<document.scripts.length;j++){if(document.scripts[j].src===r){return;}}
+k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+(window,document,"script","https://mc.yandex.ru/metrika/tag.js","ym");
+ym(%(id)s,"init",{clickmap:true,trackLinks:true,accurateTrackBounce:true,webvisor:true});
+document.addEventListener("click",function(e){var a=e.target.closest&&e.target.closest("a[href]");if(!a)return;var h=a.href;
+var g=/plati\\.market|digiseller/.test(h)?"buy":/drive\\.google|disk\\.yandex|vk\\.(com|ru)\\/topic-/.test(h)?"download":/vk\\.(com|ru)\\/app\\d|roblox\\.com\\/games|script\\.google\\.com/.test(h)?"play":/t\\.me\\/|vk\\.(com|ru)\\/board/.test(h)?"contact":"";
+if(g)ym(%(id)s,"reachGoal",g);},true);
+</script>
+<noscript><div><img src="https://mc.yandex.ru/watch/%(id)s" style="position:absolute;left:-9999px" alt=""></div></noscript>
+<!-- metrika:end -->
+'''
+
+
+def inject_metrika(cfg):
+    mid = str(cfg.get('metrika_id') or '').strip()
+    files = ['index.html', '404.html'] + glob.glob('*/index.html')
+    n = 0
+    for f in files:
+        if not os.path.isfile(f):
+            continue
+        s = open(f, encoding='utf-8').read()
+        s2 = re.sub(r'<!-- metrika:start.*?<!-- metrika:end -->\n?', '', s, flags=re.S)
+        if mid.isdigit():
+            s2 = s2.replace('</head>', METRIKA % {'id': mid} + '</head>', 1)
+        if s2 != s:
+            write(f, s2)
+            n += 1
+    if mid.isdigit():
+        print('Метрика %s: обновлено страниц %d' % (mid, n))
 
 
 def write(path, text):

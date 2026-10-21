@@ -1,0 +1,39 @@
+name: Скорость и SEO (Lighthouse → Telegram)
+
+# Раз в неделю (понедельник, 10:17 МСК) и вручную: проверяет каждую страницу сайта
+# тем же движком, что Google PageSpeed (телефон), и присылает сводку в Telegram.
+on:
+  schedule:
+    - cron: '17 7 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  lighthouse:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Проверить все страницы
+        run: |
+          mkdir -p lh
+          i=0
+          for url in $(grep -o '<loc>[^<]*' sitemap.xml | sed 's/<loc>//'); do
+            i=$((i+1))
+            npx -y lighthouse@12.2.1 "$url" --quiet --output=json --output-path="lh/$i.json" \
+              --only-categories=performance,seo,accessibility,best-practices \
+              --form-factor=mobile --chrome-flags="--headless=new --no-sandbox" || echo "не удалось: $url"
+          done
+
+      - name: Сводка в Telegram
+        env:
+          TG_BOT_TOKEN: ${{ secrets.TG_BOT_TOKEN }}
+          TG_CHAT_ID: ${{ secrets.TG_CHAT_ID }}
+        run: python3 tools/lighthouse_report.py
