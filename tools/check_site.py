@@ -77,6 +77,8 @@ def seo_issues(html_text, url):
         issues.append('нет описания (meta description)')
     if re.search(r'<meta[^>]+robots[^>]+noindex', head, re.I) and not url.endswith('404.html'):
         issues.append('стоит запрет индексации (noindex)')
+    if 'rel="icon"' not in head and "rel=icon" not in head:
+        issues.append('нет значка сайта (favicon)')
     c = re.search(r'<link[^>]+rel\s*=\s*"?canonical"?[^>]+href\s*=\s*"?([^"\s>]+)', head, re.I)
     if c and urllib.parse.unquote(c.group(1)).rstrip('/') != urllib.parse.unquote(url).rstrip('/'):
         issues.append('canonical указывает на другой адрес: ' + c.group(1))

@@ -35,7 +35,9 @@ jobs:
 
       # Коммит от этого workflow не запускает «Сборку сайта», поэтому собираем здесь же
       - name: Update main page and sitemap
-        run: python tools/build_site.py
+        run: |
+          python tools/render_pages.py
+          python tools/build_site.py
 
       - name: Commit and push changes
         run: |
