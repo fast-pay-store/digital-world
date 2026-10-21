@@ -86,7 +86,15 @@ def read_page(folder):
     desc = short(p.desc or p.first_p)
     if desc.lower().startswith('подробности в источнике'):
         desc = ''
+    cat = ''
+    pj = os.path.join(folder, 'page.json')
+    if os.path.exists(pj):
+        try:
+            cat = json.load(open(pj, encoding='utf-8')).get('category', '')
+        except Exception:
+            pass
     return {
+        'category': cat,
         'folder': folder,
         'url_path': quote(folder) + '/',
         'title': title,
@@ -112,13 +120,25 @@ def main():
                               -p['date'].timestamp()))
     listed = [p for p in pages if not p['noindex']] + [p for p in pages if p['noindex']]
 
-    # ---------- главная ----------
-    cards = []
-    for p in listed:
-        cards.append(
-            '<a class="card" href="{u}"><h2>{t}</h2>{d}<span class="go">Открыть →</span></a>'.format(
+    # ---------- главная (по категориям) ----------
+    cat_of = cfg.get('category_of', {})
+    for p in pages:
+        p['category'] = p['category'] or cat_of.get(p['folder'], 'servisy')
+    groups = []
+    for c in cfg.get('categories', [{'id': '', 'name': 'Страницы', 'about': ''}]):
+        items = [p for p in listed if p['category'] == c['id'] or (not c['id'])]
+        if not items:
+            continue
+        cards = ''.join(
+            '<a class="card" href="{u}"><h3>{t}</h3>{d}<span class="go">Открыть →</span></a>'.format(
                 u=html.escape(p['url_path']), t=html.escape(p['title']),
-                d=('<p>' + html.escape(p['desc']) + '</p>') if p['desc'] else ''))
+                d=('<p>' + html.escape(p['desc']) + '</p>') if p['desc'] else '') for p in items)
+        groups.append('<section class="cat" id="{id}"><h2>{n} <span class="n">{k}</span></h2><p class="about">{a}</p>'
+                      '<div class="grid">{c}</div></section>'.format(id=html.escape(c['id']), n=html.escape(c['name']),
+                      k=len(items), a=html.escape(c.get('about', '')), c=cards))
+    nav = ''.join('<a href="#{}">{}</a>'.format(html.escape(c['id']), html.escape(c['name']))
+                  for c in cfg.get('categories', []) if any(p['category'] == c['id'] for p in listed))
+    cards = groups
     items_ld = [{'@type': 'ListItem', 'position': i + 1, 'url': base + p['url_path'], 'name': p['title']}
                 for i, p in enumerate(listed)]
     ld = json.dumps({'@context': 'https://schema.org', '@type': 'ItemList', 'itemListElement': items_ld},
@@ -131,7 +151,7 @@ def main():
               .replace('{{CONTACT_URL}}', html.escape(cfg['contact_url']))
               .replace('{{CONTACT_TEXT}}', html.escape(cfg['contact_text']))
               .replace('{{COUNT}}', str(len(listed)))
-              .replace('{{CARDS}}', '\n      '.join(cards))
+              .replace('{{CARDS}}', '\n'.join(cards)).replace('{{NAV}}', nav)
               .replace('{{JSONLD}}', ld))
     write('index.html', out)
 

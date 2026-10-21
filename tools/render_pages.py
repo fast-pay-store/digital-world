@@ -102,17 +102,26 @@ def render(folder, cfg, all_pages):
     hero_img, hero_src = img_tag(folder, d['hero_image']['name'], d['hero_image']['alt'], eager=True)
 
     faq = [q for s in d['sections'] for q in s.get('faq', [])]
-    ld = [{
-        '@context': 'https://schema.org', '@type': 'SoftwareApplication',
+    cats = {c['id']: c['name'] for c in cfg.get('categories', [])}
+    cat_id = d.get('category', '')
+    cat_name = cats.get(cat_id, 'Каталог')
+    app = {
+        '@context': 'https://schema.org', '@type': d.get('schema_type', 'SoftwareApplication'),
         'name': d['app_name'], 'description': d['description'], 'url': url,
         'applicationCategory': d.get('app_category', 'GameApplication'),
         'operatingSystem': d.get('os', 'Windows'), 'inLanguage': 'ru',
         'image': url + hero_src,
         'publisher': {'@type': 'Organization', 'name': 'Digital World', 'url': base},
-    }, {
+    }
+    if d.get('game_platform'):
+        app['gamePlatform'] = d['game_platform']
+    if d.get('offers_free'):
+        app['offers'] = {'@type': 'Offer', 'price': '0', 'priceCurrency': 'RUB'}
+    ld = [app, {
         '@context': 'https://schema.org', '@type': 'BreadcrumbList', 'itemListElement': [
             {'@type': 'ListItem', 'position': 1, 'name': 'Каталог', 'item': base},
-            {'@type': 'ListItem', 'position': 2, 'name': d['h1'], 'item': url}]
+            {'@type': 'ListItem', 'position': 2, 'name': cat_name, 'item': base + '#' + cat_id},
+            {'@type': 'ListItem', 'position': 3, 'name': d['h1'], 'item': url}]
     }]
     if faq:
         ld.append({'@context': 'https://schema.org', '@type': 'FAQPage', 'mainEntity': [
@@ -120,6 +129,8 @@ def render(folder, cfg, all_pages):
              'acceptedAnswer': {'@type': 'Answer', 'text': re.sub('<[^>]+>', '', q['a'])}} for q in faq]})
 
     others = [p for p in all_pages if p['folder'] != folder and not p['noindex']]
+    same = [p for p in others if p.get('category') == cat_id]
+    others = (same + [p for p in others if p not in same])[:9]
     others_html = ''.join('<a href="../%s">%s<small>%s</small></a>' % (
         E(p['url_path']), E(p['title']), E(p['desc'][:110] + ('…' if len(p['desc']) > 110 else ''))) for p in others)
 
@@ -153,14 +164,14 @@ def render(folder, cfg, all_pages):
 <header class="top"><div class="wrap"><a href="../">Digital World</a><span class="sp"></span><a class="all" href="../">Все программы</a></div></header>
 <main>
 <div class="wrap">
-<nav class="crumbs" aria-label="Навигация"><ol><li><a href="../">Каталог</a></li><li aria-current="page">{h1}</li></ol></nav>
+<nav class="crumbs" aria-label="Навигация"><ol><li><a href="../">Каталог</a></li><li><a href="../#{cat_id}">{cat_name}</a></li><li aria-current="page">{h1}</li></ol></nav>
 <div class="hero">
 <div><h1>{h1}</h1><p class="lead">{lead}</p>{cta}{note}</div>
 <div>{hero_img}</div>
 </div>
 </div>
 {sections}
-<section class="s"><div class="wrap"><h2>Другие программы и сервисы</h2><div class="others">{others}</div></div></section>
+<section class="s"><div class="wrap"><h2>{others_h}</h2><div class="others">{others}</div></div></section>
 </main>
 <footer class="f"><div class="wrap">
 <div class="row"><span>Вопросы, активация, помощь:</span>{contacts}</div>
@@ -169,8 +180,8 @@ def render(folder, cfg, all_pages):
 </body>
 </html>
 '''.format(title=E(d['title']), desc=E(d['description']), url=E(url), img=E(url + hero_src),
-           ld=json.dumps(ld, ensure_ascii=False), h1=E(d['h1']), lead=d['lead'], cta=buttons(d.get('hero_buttons')),
-           note=pass_note, hero_img=hero_img, sections=sections, others=others_html,
+           ld=json.dumps(ld, ensure_ascii=False), h1=E(d['h1']), cat_id=E(cat_id), cat_name=E(cat_name), lead=d['lead'], cta=buttons(d.get('hero_buttons')),
+           note=pass_note, hero_img=hero_img, sections=sections, others=others_html, others_h=E(d.get('others_title', 'Другие программы и игры')),
            contacts=''.join('<a href="%s" target="_blank" rel="noopener">%s</a>' % (E(c['href']), E(c['text'])) for c in d.get('contacts', [])),
            disclaimer=d.get('disclaimer', ''))
     with open(os.path.join(folder, 'index.html'), 'w', encoding='utf-8', newline='\n') as f:
@@ -185,6 +196,9 @@ def main():
     all_pages = [read_page(n) for n in sorted(os.listdir('.'))
                  if os.path.isdir(n) and not n.startswith(('.', '_')) and n not in cfg.get('exclude', [])
                  and os.path.isfile(os.path.join(n, 'index.html'))]
+    cat_of = cfg.get('category_of', {})
+    for p in all_pages:
+        p['category'] = p['category'] or cat_of.get(p['folder'], 'servisy')
     for folder in folders:
         n = render(folder, cfg, all_pages)
         print('Собрана страница %s (%d КБ)' % (folder, n // 1024))

@@ -34,7 +34,15 @@
   .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:18px}
   .card{display:flex;flex-direction:column;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px;text-decoration:none;color:inherit;transition:transform .15s,box-shadow .15s,border-color .15s}
   .card:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(0,0,0,.08);border-color:var(--accent)}
-  .card h2{margin:0 0 8px;font-size:18px;line-height:1.3}
+  .card h3{margin:0 0 8px;font-size:18px;line-height:1.3}
+  .cats{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:2}
+  .cats .wrap{display:flex;gap:8px;overflow-x:auto;padding-top:10px;padding-bottom:10px}
+  .cats a{white-space:nowrap;text-decoration:none;color:var(--ink);border:1px solid var(--line);border-radius:20px;padding:6px 14px;font-size:15px}
+  .cats a:hover{border-color:var(--accent);color:var(--accent)}
+  section.cat{padding-top:8px;margin-bottom:34px;scroll-margin-top:64px}
+  section.cat h2{font-size:26px;margin:0 0 4px}
+  section.cat h2 .n{font-size:15px;color:var(--muted);font-weight:500;margin-left:6px}
+  section.cat .about{margin:0 0 16px;color:var(--muted)}
   .card p{margin:0 0 16px;color:var(--muted);font-size:15px;flex:1}
   .go{margin-top:auto;color:var(--accent);font-weight:600;font-size:15px}
   footer{border-top:1px solid var(--line);padding:26px 20px;text-align:center;color:var(--muted);font-size:14.5px}
@@ -45,12 +53,11 @@
   <header><div class="wrap">
     <h1>{{HEADING}}</h1>
     <p>{{DESCRIPTION}}</p>
-    <span class="count">Страниц на сайте: {{COUNT}}</span>
+    <span class="count">Программ, игр и сервисов: {{COUNT}}</span>
   </div></header>
+  <nav class="cats" aria-label="Разделы"><div class="wrap">{{NAV}}</div></nav>
   <main><div class="wrap">
-    <div class="grid">
-      {{CARDS}}
-    </div>
+{{CARDS}}
   </div></main>
   <footer>Вопросы и доступ: <a href="{{CONTACT_URL}}" target="_blank" rel="noopener">{{CONTACT_TEXT}}</a></footer>
 </body>

@@ -1,11 +1,35 @@
 {
-  "title": "Digital World — программы, боты и онлайн-сервисы",
+  "title": "Digital World — боты для игр, игры ВКонтакте и Roblox, онлайн-сервисы",
   "heading": "Digital World",
-  "description": "Каталог программ, игровых ботов и онлайн-сервисов: описания, демо-версии и доступ.",
+  "description": "Боты-кликеры для игр (Dungeon Crusher, Shop Titans, Raid, Tiles Survive и др.), бесплатные игры ВКонтакте без всплывающей рекламы, игры Roblox с нейросетью и онлайн-сервисы.",
   "base_url": "https://fast-pay-store.github.io/digital-world/",
   "contact_url": "https://t.me/konctantin777",
   "contact_text": "Telegram @konctantin777",
   "order": [
+    "bot-dungeon-crusher",
+    "shoptitans-bot",
+    "tiles-survive-bot",
+    "trofei-rybalka2",
+    "raid-shadow-legends-bot",
+    "pixel-starships-bot",
+    "monolife-bot",
+    "gems-of-war-bot",
+    "realnaya-rybalka-bot",
+    "lust-goddess-bot",
+    "battlesmiths-bot",
+    "catacombs-world-bot",
+    "tower-defense-simulator-bot",
+    "krugi-vk-bot",
+    "zazerkale-bot",
+    "zashchita-bashen",
+    "morskoy-boy-onlayn",
+    "sortirovka-sharikov",
+    "pryzhok-komety",
+    "tetris",
+    "padayushchie-shariki",
+    "tanki-bitva-s-ii",
+    "pereigray-ii",
+    "nauchi-skaynet-strelyat",
     "pechat-lko"
   ],
   "exclude": [
@@ -14,5 +38,36 @@
   "indexnow_key": "ca96c76830b34778ff3c90622aed511b",
   "check_also": [
     "https://script.google.com/macros/s/AKfycbyfetjbig_vxHsKFoPlWXqlYPeAlMJVw6FlS2UNyNNL0OpqhojmFgiD9uQE6mnVKZYxeQ/exec"
-  ]
+  ],
+  "categories": [
+    {
+      "id": "boty",
+      "name": "Боты для игр",
+      "about": "Боты-кликеры и помощники для игр на ПК, в браузере и BlueStacks: демо-версия бесплатно, пароль 1234."
+    },
+    {
+      "id": "igry-vk",
+      "name": "Игры ВКонтакте",
+      "about": "Бесплатные игры во ВКонтакте без всплывающей рекламы — играйте прямо в браузере и на телефоне."
+    },
+    {
+      "id": "igry-roblox",
+      "name": "Игры Roblox",
+      "about": "Игры в Roblox, где соперник — нейросеть, которая учится на каждом бою."
+    },
+    {
+      "id": "igry-drugie",
+      "name": "Другие игры",
+      "about": "Небольшие игры для телефона и компьютера."
+    },
+    {
+      "id": "servisy",
+      "name": "Сервисы и гайды",
+      "about": "Онлайн-сервисы и справочники."
+    }
+  ],
+  "category_of": {
+    "pechat-lko": "servisy",
+    "world-of-fishers-гид-по-рыбам": "servisy"
+  }
 }
