@@ -18,7 +18,7 @@ import sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 os.chdir(ROOT)
 sys.path.insert(0, os.path.join(ROOT, 'tools'))
-from build_site import read_page  # noqa: E402
+from build_site import read_page, inject_metrika  # noqa: E402
 
 E = lambda s: html.escape(str(s), quote=True)
 
@@ -202,6 +202,7 @@ def main():
     for folder in folders:
         n = render(folder, cfg, all_pages)
         print('Собрана страница %s (%d КБ)' % (folder, n // 1024))
+    inject_metrika(cfg)  # счётчик Метрики (если задан в site.json)
 
 
 if __name__ == '__main__':

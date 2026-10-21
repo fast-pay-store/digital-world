@@ -21,6 +21,8 @@
     "tower-defense-simulator-bot",
     "krugi-vk-bot",
     "zazerkale-bot",
+    "jewel-legend-bot",
+    "dandys-world-bot",
     "zashchita-bashen",
     "morskoy-boy-onlayn",
     "sortirovka-sharikov",
@@ -72,10 +74,15 @@
   },
   "watch": [
     {
-      "name": "Товар «Ключ для бота» на Plati.Market",
-      "url": "https://plati.market/itm/3907555",
-      "must_contain": "Ключ для бота"
+      "name": "Товар «Лицензионный ключ» (Digiseller 5959089)",
+      "url": "https://api.digiseller.com/api/products/5959089/data?lang=ru-RU",
+      "must_contain": "\"retval\": 0"
+    },
+    {
+      "name": "Страница оплаты лицензии (widget.html)",
+      "url": "https://fast-pay-store.github.io/digital-world/widget.html",
+      "must_contain": "digiseller"
     }
   ],
-  "metrika_id": ""
+  "metrika_id": "113717630"
 }
