@@ -25,6 +25,7 @@
 | Обсуждения ВК | каждый день 09:41 МСК | новая тема → черновик страницы (noindex) + Telegram; изменённый пост и мёртвые ссылки → Telegram. Нужен секрет `VK_TOKEN` |
 | Скорость и SEO (Lighthouse) | понедельник 10:17 МСК | оценки каждой страницы с телефона → сводка в Telegram |
 | Отчёт Яндекс.Вебмастера | только вручную | API Вебмастера закрыт для серверов GitHub — еженедельный отчёт идёт с ПК владельца: `D:\GD\AI_clod\Сайт digital-world\Отчёт Вебмастера` |
+| Справочник Shop Titans | среда 06:23 МСК и вручную | качает все предметы с playshoptitans.com (`tools/shoptitans_fetch.py` → `shoptitans/data.json`), пересобирает `shoptitans-spravochnik/` (40 страниц, поиск, CSV) |
 | Generate Page from VK Link | вручную | страница из ссылки ВК + обновление главной |
 
 Секреты (Settings → Secrets and variables → Actions): `TG_BOT_TOKEN`, `TG_CHAT_ID` (заданы), `VK_TOKEN`, `YANDEX_WEBMASTER_TOKEN`.

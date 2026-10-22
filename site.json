@@ -33,6 +33,7 @@
     "pereigray-ii",
     "nauchi-skaynet-strelyat",
     "pechat-lko",
+    "shoptitans-spravochnik",
     "world-of-fishers-gid-po-rybam"
   ],
   "exclude": [
@@ -70,7 +71,8 @@
     }
   ],
   "category_of": {
-    "pechat-lko": "servisy"
+    "pechat-lko": "servisy",
+    "shoptitans-spravochnik": "servisy"
   },
   "watch": [
     {
@@ -99,5 +101,8 @@
       "must_contain": "digiseller"
     }
   ],
-  "metrika_id": "113717630"
+  "metrika_id": "113717630",
+  "deep": [
+    "shoptitans-spravochnik"
+  ]
 }

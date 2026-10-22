@@ -1,0 +1,39 @@
+name: Справочник Shop Titans — обновление данных
+
+# Каждую среду в 06:23 МСК и вручную: скачивает свежие данные предметов с официального сайта
+# playshoptitans.com (tools/shoptitans_fetch.py) и пересобирает страницы справочника.
+on:
+  schedule:
+    - cron: '23 3 * * 3'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: site-build
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Скачать данные
+        run: python3 tools/shoptitans_fetch.py
+      - name: Собрать справочник и сайт
+        run: |
+          python3 tools/shoptitans_pages.py
+          python3 tools/render_pages.py
+          python3 tools/build_site.py
+          python3 tools/render_pages.py
+      - name: Сохранить
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A .
+          git diff --staged --quiet || (git commit -m "chore: справочник Shop Titans — свежие данные" && git push)
+      - name: Сообщить Яндексу (IndexNow)
+        run: sleep 90 && python3 tools/indexnow.py

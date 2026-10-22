@@ -169,6 +169,11 @@ def main():
             continue
         rows.append('  <url><loc>{}</loc><lastmod>{}</lastmod></url>'.format(
             html.escape(base + p['url_path']), p['date'].date().isoformat()))
+    # вложенные страницы (например, справочник Shop Titans: папка/тип/index.html)
+    for deep in cfg.get('deep', []):
+        for f in sorted(glob.glob(os.path.join(deep, '*', 'index.html'))):
+            rows.append('  <url><loc>{}</loc><lastmod>{}</lastmod></url>'.format(
+                html.escape(base + quote(os.path.dirname(f).replace(os.sep, '/')) + '/'), git_date(f).date().isoformat()))
     write('sitemap.xml', '<?xml version="1.0" encoding="UTF-8"?>\n'
           '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + '\n'.join(rows) + '\n</urlset>\n')
 
@@ -203,7 +208,7 @@ if(g)ym(%(id)s,"reachGoal",g);},true);
 
 def inject_metrika(cfg):
     mid = str(cfg.get('metrika_id') or '').strip()
-    files = ['index.html', '404.html', 'widget.html', 'oplata-lko.html'] + glob.glob('*/index.html')
+    files = ['index.html', '404.html', 'widget.html', 'oplata-lko.html'] + glob.glob('*/index.html') + glob.glob('*/*/index.html')
     n = 0
     for f in files:
         if not os.path.isfile(f):

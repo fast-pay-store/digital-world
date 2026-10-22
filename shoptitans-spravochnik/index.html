@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Справочник Shop Titans: цены всех предметов, рынок и крафт (1575 шт.)</title>
+<meta name="description" content="Все 1575 предметов Shop Titans на русском: цена продажи по качествам, мин. и макс. цены на рынке, время крафта и ресурсы. Поиск, таблицы, скачать CSV.">
+<link rel="canonical" href="https://fast-pay-store.github.io/digital-world/shoptitans-spravochnik/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Digital World">
+<meta property="og:title" content="Справочник Shop Titans: цены всех предметов, рынок и крафт (1575 шт.)">
+<meta property="og:description" content="Все 1575 предметов Shop Titans на русском: цена продажи по качествам, мин. и макс. цены на рынке, время крафта и ресурсы. Поиск, таблицы, скачать CSV.">
+<meta property="og:url" content="https://fast-pay-store.github.io/digital-world/shoptitans-spravochnik/">
+<meta property="og:locale" content="ru_RU">
+<link rel="stylesheet" href="../assets/site.css">
+<link rel="icon" href="https://fast-pay-store.github.io/digital-world/assets/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="https://fast-pay-store.github.io/digital-world/assets/favicon-120.png" sizes="120x120" type="image/png">
+<link rel="apple-touch-icon" href="https://fast-pay-store.github.io/digital-world/assets/apple-touch-icon.png">
+<script type="application/ld+json">[{"@context": "https://schema.org", "@type": "Dataset", "name": "Справочник Shop Titans: цены всех предметов, рынок и крафт (1575 шт.)", "description": "Все 1575 предметов Shop Titans на русском: цена продажи по качествам, мин. и макс. цены на рынке, время крафта и ресурсы. Поиск, таблицы, скачать CSV.", "url": "https://fast-pay-store.github.io/digital-world/shoptitans-spravochnik/", "inLanguage": "ru", "isBasedOn": "https://playshoptitans.com/ru/blueprints", "dateModified": "2026-10-22", "distribution": [{"@type": "DataDownload", "encodingFormat": "text/csv", "contentUrl": "https://fast-pay-store.github.io/digital-world/shoptitans-spravochnik/shoptitans-ceny.csv"}]}, {"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Что такое цена продажи?", "acceptedAnswer": {"@type": "Answer", "text": "Это базовая стоимость предмета — за сколько его покупают посетители лавки (NPC) при обычном качестве. Для других качеств: превосходное ×1,25, безупречное ×2, эпическое ×3, легендарное ×5."}}, {"@type": "Question", "name": "Что значит «рынок мин – макс»?", "acceptedAnswer": {"@type": "Answer", "text": "Это пределы, в которых игра разрешает выставлять предмет на рынке для каждого качества. Купить на рынке дешевле цены продажи — выгодная сделка: предмет можно сразу продать посетителю дороже."}}, {"@type": "Question", "name": "Откуда данные и насколько они свежие?", "acceptedAnswer": {"@type": "Answer", "text": "С официального сайта playshoptitans.com. Справочник обновляется автоматически раз в неделю — дата обновления указана на странице."}}, {"@type": "Question", "name": "Можно скачать все цены?", "acceptedAnswer": {"@type": "Answer", "text": "Да — файл shoptitans-ceny.csv открывается в Excel и Google Таблицах."}}]}]</script>
+<!-- Файл создаётся автоматически (tools/shoptitans_pages.py) из данных официального сайта playshoptitans.com -->
+<style>
+.tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--card)}
+table.st{border-collapse:collapse;width:100%;font-size:14.5px;min-width:900px}
+table.st th,table.st td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+table.st th{position:sticky;top:0;background:var(--bg);font-size:13px;color:var(--muted);font-weight:600;cursor:pointer;white-space:nowrap}
+table.st td.n{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+table.st td small{color:var(--muted)}
+table.st tr:hover td{background:var(--bg)}
+.types{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px;margin:12px 0 22px}
+.types a{display:block;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:var(--card);text-decoration:none;color:var(--ink);font-weight:600}
+.types a:hover{border-color:var(--accent)}
+.types small{display:block;color:var(--muted);font-weight:400}
+.find{width:100%;max-width:560px;padding:12px 14px;font-size:17px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink)}
+#res{margin-top:12px}
+.cta{display:flex;flex-wrap:wrap;gap:12px;align-items:center;background:var(--card);border:1px solid var(--line);border-left:4px solid var(--accent2);border-radius:12px;padding:16px 18px;margin:22px 0}
+.cta p{margin:0;flex:1;min-width:240px}
+</style>
+<!-- metrika:start (вставляется автоматически tools/build_site.py, номер — site.json → metrika_id) -->
+<script type="text/javascript">
+(function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};m[i].l=1*new Date();
+for(var j=0;j<document.scripts.length;j++){if(document.scripts[j].src===r){return;}}
+k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+(window,document,'script','https://mc.yandex.ru/metrika/tag.js?id=113717630','ym');
+ym(113717630,'init',{ssr:true,webvisor:true,clickmap:true,ecommerce:"dataLayer",referrer:document.referrer,url:location.href,accurateTrackBounce:true,trackLinks:true});
+document.addEventListener("click",function(e){var el=e.target;if(!el||!el.closest)return;
+if(el.closest(".digiseller-buy-standalone")&&el.closest("button,a,input[type=submit]")){ym(113717630,"reachGoal","checkout");return;}
+var a=el.closest("a[href]");if(!a)return;var h=a.href;
+var g=/widget\.html|oplata-lko\.html|oplata\.info|digiseller|keys\.shop|plati\.market/.test(h)?"buy":/drive\.google|disk\.yandex|vk\.(com|ru)\/topic-/.test(h)?"download":/vk\.(com|ru)\/app\d|roblox\.com\/games|script\.google\.com/.test(h)?"play":/t\.me\/|vk\.(com|ru)\/board/.test(h)?"contact":"";
+if(g)ym(113717630,"reachGoal",g);},true);
+</script>
+<noscript><div><img src="https://mc.yandex.ru/watch/113717630" style="position:absolute;left:-9999px" alt=""></div></noscript>
+<!-- metrika:end -->
+</head>
+<body>
+<header class="top"><div class="wrap"><a href="../">Digital World</a><span class="sp"></span><a class="all" href="../">Все программы</a></div></header>
+<main><div class="wrap">
+<nav class="crumbs" aria-label="Навигация"><ol><li><a href="../">Каталог</a></li><li><a href="../#servisy">Сервисы и гайды</a></li><li aria-current="page">Справочник Shop Titans</li></ol></nav>
+<h1 style="font-size:clamp(28px,4vw,40px);line-height:1.15;margin:14px 0 10px">Справочник Shop Titans: цены предметов, рынок и крафт</h1>
+<p class="lead">Все 1575 предметов Shop Titans на русском: цена продажи посетителям по качествам, допустимые цены на рынке, время крафта, ресурсы и компоненты. Данные с официального сайта, обновляются каждую неделю (последнее обновление: 2026-10-22).</p><input class="find" id="q" type="search" placeholder="Найти предмет: например, «меч» или «Кольцо Мидаса»" autocomplete="off"><div id="res"></div><h2 style="font-size:22px;margin:22px 0 4px">Оружие</h2><div class="types"><a href="mechi/">Мечи<small>54 шт.</small></a><a href="topory/">Топоры<small>51 шт.</small></a><a href="kinzhaly/">Кинжалы<small>53 шт.</small></a><a href="bulavy/">Булавы<small>53 шт.</small></a><a href="kopya/">Копья<small>53 шт.</small></a><a href="luki/">Луки<small>49 шт.</small></a><a href="arbalety/">Арбалеты<small>28 шт.</small></a><a href="ruzhya/">Ружья<small>38 шт.</small></a><a href="posohi/">Посохи<small>56 шт.</small></a><a href="volshebnye-palochki/">Волшебные палочки<small>33 шт.</small></a><a href="kosy/">Косы<small>14 шт.</small></a><a href="instrumenty/">Инструменты<small>26 шт.</small></a><a href="katalizatory/">Катализаторы<small>17 шт.</small></a><a href="dvoynoe-oruzhie/">Двойное оружие<small>19 шт.</small></a></div><h2 style="font-size:22px;margin:22px 0 4px">Броня</h2><div class="types"><a href="tyazhelye-dospehi/">Тяжелые доспехи<small>51 шт.</small></a><a href="legkie-dospehi/">Легкие доспехи<small>49 шт.</small></a><a href="odezhda/">Одежда<small>52 шт.</small></a><a href="shlemy/">Шлемы<small>54 шт.</small></a><a href="shapki-strannika/">Шапки странника<small>53 шт.</small></a><a href="shlyapy-maga/">Шляпы мага<small>50 шт.</small></a><a href="maski/">Маски<small>12 шт.</small></a><a href="rukavitsy/">Рукавицы<small>48 шт.</small></a><a href="naruchi/">Наручи<small>48 шт.</small></a><a href="tyazhelaya-obuv/">Тяжелая обувь<small>48 шт.</small></a><a href="legkaya-obuv/">Легкая обувь<small>54 шт.</small></a></div><h2 style="font-size:22px;margin:22px 0 4px">Аксессуары</h2><div class="types"><a href="schity/">Щиты<small>54 шт.</small></a><a href="koltsa/">Кольца<small>51 шт.</small></a><a href="amulety/">Амулеты<small>57 шт.</small></a><a href="plaschi/">Плащи<small>30 шт.</small></a><a href="familyary/">Фамильяры<small>18 шт.</small></a><a href="kolchany/">Колчаны<small>18 шт.</small></a><a href="pesni-aury/">Песни ауры<small>22 шт.</small></a><a href="idoly/">Идолы<small>20 шт.</small></a><a href="deserty/">Десерты<small>26 шт.</small></a><a href="blyuda/">Блюда<small>44 шт.</small></a><a href="travyanye-lekarstva/">Травяные лекарства<small>49 шт.</small></a><a href="zelya/">Зелья<small>57 шт.</small></a><a href="zaklinaniya/">Заклинания<small>56 шт.</small></a></div><h2 style="font-size:22px;margin:22px 0 4px">Камни</h2><div class="types"><a href="runnye-kamni/">Рунные камни<small>5 шт.</small></a><a href="lunnye-kamni/">Лунные камни<small>5 шт.</small></a></div><div class="cta"><p><b>Бот для Shop Titans</b> сам собирает ресурсы, производит товары и работает с рынком 24/7. Демо-версия бесплатно.</p><a class="btn" href="../shoptitans-bot/">Подробнее о боте</a></div><section class="faq" style="margin-top:20px"><h2 style="font-size:22px">Частые вопросы</h2><details><summary>Что такое цена продажи?</summary><p>Это базовая стоимость предмета — за сколько его покупают посетители лавки (NPC) при обычном качестве. Для других качеств: превосходное ×1,25, безупречное ×2, эпическое ×3, легендарное ×5.</p></details><details><summary>Что значит «рынок мин – макс»?</summary><p>Это пределы, в которых игра разрешает выставлять предмет на рынке для каждого качества. Купить на рынке дешевле цены продажи — выгодная сделка: предмет можно сразу продать посетителю дороже.</p></details><details><summary>Откуда данные и насколько они свежие?</summary><p>С официального сайта playshoptitans.com. Справочник обновляется автоматически раз в неделю — дата обновления указана на странице.</p></details><details><summary>Можно скачать все цены?</summary><p>Да — файл shoptitans-ceny.csv открывается в Excel и Google Таблицах.</p></details></section><p><a class="btn ghost" href="shoptitans-ceny.csv">Скачать все цены (CSV, 1575 предметов)</a></p><script>
+(function(){var q=document.getElementById('q'),res=document.getElementById('res'),data=null;
+function money(v){v=+v;var u=[[1e9,' млрд'],[1e6,' млн'],[1e3,' тыс.']];for(var i=0;i<u.length;i++)if(v>=u[i][0])return (v/u[i][0]).toFixed(2).replace(/\.?0+$/,'').replace('.',',')+u[i][1];return ''+v}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function show(){var s=q.value.trim().toLowerCase();if(s.length<2){res.innerHTML='';return}
+var r=data.filter(function(x){return x[0].toLowerCase().indexOf(s)>=0||x[6].toLowerCase().indexOf(s)>=0}).slice(0,40);
+res.innerHTML=r.length?'<div class="tbl-wrap"><table class="st" style="min-width:600px"><thead><tr><th>Предмет</th><th>Тип</th><th>Ур.</th><th>Цена продажи</th><th>Рынок (обычное)</th></tr></thead><tbody>'+r.map(function(x){return '<tr><td><a href="'+x[1]+'/">'+esc(x[0])+'</a></td><td>'+esc(x[6])+'</td><td class="n">'+x[2]+'</td><td class="n">'+money(x[3])+'</td><td class="n">'+money(x[4])+' – '+money(x[5])+'</td></tr>'}).join('')+'</tbody></table></div>':'<p>Ничего не найдено.</p>'}
+q.addEventListener('input',function(){if(data)return show();fetch('search.json').then(function(r){return r.json()}).then(function(d){data=d;show()})});})();
+</script>
+</div></main>
+<footer class="f"><div class="wrap">
+<div class="row"><span>Вопросы:</span><a href="https://t.me/konctantin777" target="_blank" rel="noopener">Telegram @konctantin777</a><a href="https://vk.com/board215704478" target="_blank" rel="noopener">ВКонтакте</a></div>
+<div class="disclaimer">Неофициальный справочник. Данные — с официального сайта <a href="https://playshoptitans.com/ru" target="_blank" rel="noopener">playshoptitans.com</a>, обновляются еженедельно. Shop Titans — товарный знак Kabam.</div>
+</div></footer>
+</body>
+</html>
