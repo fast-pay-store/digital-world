@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Конвертер Markdown в FB2 онлайн</title>
+<meta name="description" content="Бесплатный конвертер .md в FB2 прямо в браузере: файлы никуда не отправляются, картинки, таблицы и главы сохраняются.">
+<meta name="robots" content="noindex">
+<style>
+  body { font-family: system-ui, "Segoe UI", Arial, sans-serif; background: #f4f5f7; color: #222; margin: 0; }
+  main { max-width: 760px; margin: 0 auto; padding: 24px 16px 48px; }
+  h1 { font-size: 26px; margin: 0 0 4px; }
+  .sub { color: #666; margin: 0 0 20px; }
+  #drop { border: 3px dashed #9aa4b2; border-radius: 14px; background: #fff; text-align: center;
+          padding: 36px 16px; cursor: pointer; font-size: 18px; }
+  #drop.over { border-color: #2f7de1; background: #eaf2ff; }
+  #drop small { display: block; color: #777; margin-top: 6px; font-size: 14px; }
+  textarea { width: 100%; box-sizing: border-box; height: 130px; margin-top: 14px; padding: 10px;
+             border: 1px solid #c9ced6; border-radius: 10px; font: 14px/1.4 Consolas, monospace; }
+  .row { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 14px; }
+  .row label { flex: 1 1 200px; font-size: 14px; color: #444; }
+  .row input, .row select { width: 100%; box-sizing: border-box; padding: 8px; margin-top: 4px;
+             border: 1px solid #c9ced6; border-radius: 8px; font-size: 15px; background: #fff; }
+  .btns { margin-top: 18px; display: flex; gap: 10px; }
+  button { font-size: 17px; padding: 11px 22px; border: 0; border-radius: 10px; background: #2f7de1; color: #fff; cursor: pointer; }
+  button.alt { background: #e3e6eb; color: #333; }
+  #loaded { list-style: none; padding: 0; margin: 12px 0 0; color: #444; }
+  #status { margin-top: 14px; min-height: 22px; color: #1d7a3a; }
+  #status.bad { color: #b3261e; }
+  .res { background: #fff; border-radius: 10px; padding: 12px 14px; margin-top: 10px; display: flex;
+         justify-content: space-between; align-items: center; gap: 12px; }
+  .res span { color: #666; font-size: 13px; }
+  .warn { color: #8a5a00; background: #fff6df; border-radius: 8px; padding: 8px 12px; margin-top: 8px; font-size: 14px; }
+  footer { margin-top: 28px; color: #888; font-size: 13px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Markdown → FB2</h1>
+  <p class="sub">Конвертация происходит прямо в браузере — файлы никуда не отправляются.</p>
+
+  <div id="drop">
+    Перетащите сюда .md файл (или несколько) — или нажмите, чтобы выбрать
+    <small>Если в тексте есть картинки из файлов — перетащите их сюда же, вместе с .md</small>
+  </div>
+  <input type="file" id="file" multiple hidden accept=".md,.markdown,.mdown,.txt,image/*">
+  <ul id="loaded"></ul>
+
+  <textarea id="text" placeholder="…или вставьте Markdown-текст сюда"></textarea>
+
+  <div class="row">
+    <label>Название книги (если пусто — возьмём первый заголовок)
+      <input id="title" type="text"></label>
+    <label>Автор (Имя Фамилия)
+      <input id="author" type="text"></label>
+    <label>Язык
+      <select id="lang">
+        <option value="ru">Русский</option>
+        <option value="en">English</option>
+        <option value="uk">Українська</option>
+        <option value="de">Deutsch</option>
+        <option value="fr">Français</option>
+        <option value="es">Español</option>
+      </select></label>
+    <label>Жанр
+      <select id="genre">
+        <option value="nonfiction">Документальная литература</option>
+        <option value="prose_contemporary">Современная проза</option>
+        <option value="sf">Фантастика</option>
+        <option value="computers">Компьютеры</option>
+      </select></label>
+  </div>
+
+  <div class="btns">
+    <button id="go">Конвертировать</button>
+    <button id="clear" class="alt">Очистить</button>
+  </div>
+  <div id="status"></div>
+  <div id="results"></div>
+  <footer>Разбор Markdown: библиотека marked. Формат: FictionBook 2.0.</footer>
+</main>
+<script src="marked.umd.js"></script>
+<script src="converter.js"></script>
+<script src="ui.js"></script>
+</body>
+</html>
