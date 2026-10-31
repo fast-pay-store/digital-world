@@ -50,7 +50,7 @@
       var k = /^(\w+)\s*:\s*(.*)$/.exec(l);
       if (k) meta[k[1].toLowerCase()] = k[2].replace(/^["']|["']$/g, '').trim();
     });
-    return { meta: meta, body: text.slice(m[0].length) };
+    return { meta: meta, body: text.slice(m[0].length), raw: m[0].replace(/^\uFEFF/, '') };
   }
 
   // ---------- Картинки ----------
@@ -379,6 +379,11 @@
     var ctx = { loader: loader, noImages: false, images: [] };
 
     var root = { level: 0, title: '', blocks: [], children: [] };
+    if (fm.raw) {
+      fm.raw.split(/\r?\n/).forEach(function (l) {
+        if (trim(l) !== '') root.blocks.push('<p>' + esc(clean(l)) + '</p>');
+      });
+    }
     var stack = [root];
     var firstH1 = '';
     var run = [];
@@ -413,9 +418,10 @@
     }
     await flush();
 
-    var title = trim(opts.title || '') || fm.meta.title || firstH1 || trim(opts.fileName || '') || 'Без названия';
-    var author = trim(opts.author || '') || fm.meta.author || '';
-    var lang = trim(opts.lang || '') || fm.meta.lang || '';
+    // «как есть»: название книги = имя файла; для вставленного текста — первый заголовок
+    var title = trim(opts.fileName || '') || firstH1 || 'Без названия';
+    var author = trim(opts.author || '');
+    var lang = trim(opts.lang || '');
     if (!lang) {
       var cyr = (fm.body.match(/[\u0400-\u04FF]/g) || []).length;
       var lat = (fm.body.match(/[A-Za-z]/g) || []).length;

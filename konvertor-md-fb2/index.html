@@ -70,10 +70,10 @@
   },
   {
    "@type": "Question",
-   "name": "Как называется книга и кто автор?",
+   "name": "Как называется готовая книга?",
    "acceptedAnswer": {
     "@type": "Answer",
-    "text": "Название берётся из первого заголовка первого уровня, а если его нет, то из имени файла. Автор не указывается. Название и автора можно задать в начале файла между строками --- в виде title: и author:."
+    "text": "Имя файла остаётся прежним: статья.md превращается в статья.fb2, и название книги в читалке совпадает с именем файла. Текст не меняется: главы, абзацы и порядок остаются как в исходном файле."
    }
   },
   {
@@ -127,21 +127,6 @@
   footer{margin-top:34px;color:#888;font-size:13px}
   footer a{color:#2f7de1}
 </style>
-<!-- metrika:start (вставляется автоматически tools/build_site.py, номер — site.json → metrika_id) -->
-<script type="text/javascript">
-(function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};m[i].l=1*new Date();
-for(var j=0;j<document.scripts.length;j++){if(document.scripts[j].src===r){return;}}
-k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
-(window,document,'script','https://mc.yandex.ru/metrika/tag.js?id=113717630','ym');
-ym(113717630,'init',{ssr:true,webvisor:true,clickmap:true,ecommerce:"dataLayer",referrer:document.referrer,url:location.href,accurateTrackBounce:true,trackLinks:true});
-document.addEventListener("click",function(e){var el=e.target;if(!el||!el.closest)return;
-if(el.closest(".digiseller-buy-standalone")&&el.closest("button,a,input[type=submit]")){ym(113717630,"reachGoal","checkout");return;}
-var a=el.closest("a[href]");if(!a)return;var h=a.href;
-var g=/widget\.html|oplata-lko\.html|oplata\.info|digiseller|keys\.shop|plati\.market/.test(h)?"buy":/drive\.google|disk\.yandex|vk\.(com|ru)\/topic-/.test(h)?"download":/vk\.(com|ru)\/app\d|roblox\.com\/games|script\.google\.com/.test(h)?"play":/t\.me\/|vk\.(com|ru)\/board/.test(h)?"contact":"";
-if(g)ym(113717630,"reachGoal",g);},true);
-</script>
-<noscript><div><img src="https://mc.yandex.ru/watch/113717630" style="position:absolute;left:-9999px" alt=""></div></noscript>
-<!-- metrika:end -->
 </head>
 <body>
 <main>
@@ -181,7 +166,7 @@ if(g)ym(113717630,"reachGoal",g);},true);
       <li>Цитаты, блоки кода и горизонтальные разделители.</li>
       <li>Таблицы с выравниванием колонок.</li>
       <li>Картинки png и jpg, а также gif, webp и svg, которые автоматически переводятся в png.</li>
-      <li>Название и автор из шапки файла между строками <code>---</code>.</li>
+      <li>Имя файла и содержимое остаются прежними: меняется только формат.</li>
     </ul>
 
     <h2>Зачем переводить .md в FB2</h2>
@@ -195,7 +180,7 @@ if(g)ym(113717630,"reachGoal",g);},true);
 <details><summary>Мои файлы загружаются на сервер?</summary><p>Нет. Конвертация целиком выполняется в вашем браузере, текст и картинки никуда не отправляются. Страницу можно сохранить и пользоваться без интернета.</p></details>
 <details><summary>Что произойдёт с заголовками?</summary><p>Заголовки от # до ###### становятся главами и вложенными разделами FB2, поэтому в читалке работает оглавление и переход по главам.</p></details>
 <details><summary>Как добавить картинки в книгу?</summary><p>Перетащите файлы картинок на страницу вместе с .md: в тексте они подставятся по имени файла, как в ![описание](рисунок.png). Форматы png и jpg вставляются как есть, gif, webp и svg переводятся в png.</p></details>
-<details><summary>Как называется книга и кто автор?</summary><p>Название берётся из первого заголовка первого уровня, а если его нет, то из имени файла. Автор не указывается. Название и автора можно задать в начале файла между строками --- в виде title: и author:.</p></details>
+<details><summary>Как называется готовая книга?</summary><p>Имя файла остаётся прежним: статья.md превращается в статья.fb2, и название книги в читалке совпадает с именем файла. Текст не меняется: главы, абзацы и порядок остаются как в исходном файле.</p></details>
 <details><summary>Чем открыть готовый FB2?</summary><p>FB2 читают FBReader, CoolReader, ReadEra, PocketBook и многие другие программы для чтения, а также Calibre на компьютере. Для Kindle файл сначала нужно перевести в другой формат, например через Calibre.</p></details>
 <details><summary>Что не переносится в FB2?</summary><p>В формате нет списков, подсветки кода и сносок, поэтому списки превращаются в абзацы с маркерами, а код выводится моноширинным шрифтом без цветов. Ссылки на другие файлы и якоря остаются обычным текстом.</p></details>
   </article>
