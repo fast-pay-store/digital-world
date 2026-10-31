@@ -415,7 +415,12 @@
 
     var title = trim(opts.title || '') || fm.meta.title || firstH1 || trim(opts.fileName || '') || 'Без названия';
     var author = trim(opts.author || '') || fm.meta.author || '';
-    var lang = trim(opts.lang || '') || fm.meta.lang || 'ru';
+    var lang = trim(opts.lang || '') || fm.meta.lang || '';
+    if (!lang) {
+      var cyr = (fm.body.match(/[\u0400-\u04FF]/g) || []).length;
+      var lat = (fm.body.match(/[A-Za-z]/g) || []).length;
+      lang = cyr >= lat ? 'ru' : 'en';
+    }
     var genre = opts.genre || 'nonfiction';
     var today = new Date().toISOString().slice(0, 10);
 
