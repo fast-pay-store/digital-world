@@ -325,6 +325,10 @@ function decide(pick){
     a.className = 'btn'; a.href = STORE_URL; a.target = '_blank'; a.rel = 'noopener';
     a.textContent = 'Посмотреть «Тихий юбилей»';
     slot.appendChild(a);
+    var b = document.createElement('a');
+    b.className = 'btn'; b.href = '../masterskaya-detektiva/'; b.style.marginLeft = '8px';
+    b.textContent = 'Сделать свой детектив бесплатно';
+    slot.appendChild(b);
   } else {
     var p = document.createElement('p');
     p.className = 'soon';
