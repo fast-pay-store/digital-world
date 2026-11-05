@@ -43,7 +43,9 @@
     "shoptitans-spravochnik",
     "world-of-fishers-gid-po-rybam",
     "kak-provesti-detektivnyy-kvest",
-    "igry-na-novyy-god-dlya-kompanii"
+    "igry-na-novyy-god-dlya-kompanii",
+    "chem-zanyat-gostey-na-korporative",
+    "kvest-na-den-rozhdeniya-dlya-vzroslyh"
   ],
   "exclude": [
     "tools"
