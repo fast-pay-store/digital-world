@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Мастерская детектива — конструктор квестов</title>
+<style>
+:root{
+  --bg:#14120f; --bg2:#1c1916; --panel:#221e1a; --panel2:#2a2520;
+  --line:#3a332c; --line2:#4a4139;
+  --ink:#ece4d8; --dim:#a2968a; --dim2:#7d7268;
+  --gold:#c9a227; --gold-dim:#8a7420;
+  --red:#a33b32; --green:#5b8a54; --blue:#4a7a95;
+  --serif:Georgia,'Times New Roman',serif;
+  --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
+
+/* шапка */
+.top{position:sticky;top:0;z-index:20;background:rgba(20,18,15,.96);border-bottom:1px solid var(--line);
+  backdrop-filter:blur(6px)}
+.top .in{max-width:1000px;margin:0 auto;padding:12px 16px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.brand{font-family:var(--serif);font-size:20px;color:var(--gold);white-space:nowrap}
+.tabs{display:flex;gap:4px;flex-wrap:wrap;flex:1}
+.tab{background:none;border:1px solid transparent;color:var(--dim);font:inherit;font-size:14px;
+  padding:6px 12px;border-radius:5px;cursor:pointer}
+.tab:hover{color:var(--ink)}
+.tab.on{background:var(--panel);border-color:var(--line2);color:var(--ink)}
+.tab .warn{color:var(--red);margin-left:5px;font-weight:700}
+.lic{font-size:12px;color:var(--dim2);white-space:nowrap}
+.lic b{color:var(--gold)}
+
+.wrap{max-width:1000px;margin:0 auto;padding:22px 16px 90px}
+.page{display:none}.page.on{display:block}
+
+h2{font-family:var(--serif);font-weight:normal;font-size:26px;margin:0 0 6px;color:var(--ink)}
+h3{font-size:14px;margin:0 0 10px;color:var(--gold-dim);letter-spacing:.09em;text-transform:uppercase}
+.hint{color:var(--dim);font-size:14px;margin:0 0 22px;max-width:70ch}
+.hint code{background:var(--panel);padding:1px 5px;border-radius:3px;color:var(--gold);font-size:13px}
+
+.card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:18px;margin-bottom:14px}
+.card.flat{background:none;border-style:dashed}
+
+label{display:block;font-size:12.5px;color:var(--dim);margin:0 0 5px;letter-spacing:.02em}
+input[type=text],textarea,select{
+  width:100%;background:var(--bg2);border:1px solid var(--line);border-radius:5px;
+  color:var(--ink);font:inherit;padding:9px 11px;resize:vertical}
+input[type=text]:focus,textarea:focus,select:focus{outline:none;border-color:var(--gold-dim)}
+textarea{min-height:70px;line-height:1.5}
+.field{margin-bottom:14px}
+.row{display:grid;gap:14px}
+@media(min-width:720px){.row.two{grid-template-columns:1fr 1fr}.row.side{grid-template-columns:220px 1fr}}
+
+.btn{background:var(--gold);color:#1a1510;border:0;border-radius:5px;padding:10px 18px;
+  font:inherit;font-weight:600;cursor:pointer}
+.btn:hover{filter:brightness(1.08)}
+.btn.ghost{background:none;border:1px solid var(--line2);color:var(--ink);font-weight:400}
+.btn.ghost:hover{border-color:var(--gold-dim);filter:none}
+.btn.sm{padding:5px 11px;font-size:13px}
+.btn.danger{background:none;border:1px solid var(--line2);color:var(--red)}
+.btn[disabled]{opacity:.4;cursor:not-allowed;filter:none}
+.btnrow{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+
+/* список подозреваемых */
+.sus{border:1px solid var(--line);border-radius:8px;margin-bottom:12px;background:var(--panel)}
+.sus.culprit{border-color:var(--gold-dim)}
+.sus .head{display:flex;align-items:center;gap:10px;padding:12px 16px;cursor:pointer}
+.sus .head .nm{font-family:var(--serif);font-size:18px;flex:1}
+.sus .head .nm .empty{color:var(--dim2);font-style:italic}
+.sus .tag{font-size:11px;letter-spacing:.1em;text-transform:uppercase;padding:2px 8px;border-radius:3px}
+.sus .tag.c{background:rgba(201,162,39,.16);color:var(--gold)}
+.sus .tag.o{background:var(--bg2);color:var(--dim2)}
+.sus .body{padding:0 16px 16px;border-top:1px solid var(--line);display:none}
+.sus.open .body{display:block;padding-top:16px}
+.chev{color:var(--dim2);font-size:12px}
+
+/* улики */
+.round{margin-bottom:22px}
+.round.locked{opacity:.45}
+.clue{border:1px solid var(--line);border-radius:7px;padding:14px;margin-bottom:10px;background:var(--panel)}
+.clue .no{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold-dim);margin-bottom:8px}
+
+/* проверка */
+.chk{display:flex;gap:11px;padding:11px 0;border-bottom:1px solid var(--line);align-items:flex-start}
+.chk:last-child{border-bottom:0}
+.chk .mk{font-weight:700;width:18px;flex:none;text-align:center;line-height:1.5}
+.chk.ok .mk{color:var(--green)}
+.chk.bad .mk{color:var(--red)}
+.chk.warn .mk{color:var(--gold)}
+.chk .tx{flex:1}
+.chk .tx b{display:block;font-weight:600;margin-bottom:2px}
+.chk .tx span{color:var(--dim);font-size:13.5px}
+
+/* замок Pro */
+.lock{border:1px dashed var(--gold-dim);border-radius:8px;padding:20px;text-align:center;background:rgba(201,162,39,.05)}
+.lock p{margin:0 0 6px;color:var(--dim)}
+.lock .big{font-family:var(--serif);font-size:19px;color:var(--gold);margin-bottom:10px}
+.keyrow{display:flex;gap:8px;max-width:420px;margin:14px auto 0}
+.keyrow input{text-transform:uppercase;letter-spacing:.06em;font-family:ui-monospace,Menlo,Consolas,monospace}
+.msg{margin-top:10px;font-size:13.5px;min-height:20px}
+.msg.ok{color:var(--green)}
+.msg.bad{color:var(--red)}
+
+.bar{position:fixed;left:0;right:0;bottom:0;background:rgba(20,18,15,.97);border-top:1px solid var(--line);
+  backdrop-filter:blur(6px);z-index:20}
+.bar .in{max-width:1000px;margin:0 auto;padding:11px 16px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.bar .st{flex:1;font-size:13px;color:var(--dim2)}
+</style>
+</head>
+<body>
+<div class="top"><div class="in">
+  <div class="brand">Мастерская детектива</div>
+  <div class="tabs" id="tabs"></div>
+  <div class="lic" id="licBadge"></div>
+</div></div>
+
+<div class="wrap">
+
+<!-- ДЕЛО -->
+<section class="page on" id="p-case">
+  <h2>Дело</h2>
+  <p class="hint">Это то, что игроки увидят на первом экране и услышат от вас вслух. Заполняйте живым языком — текст идёт в игру как есть.</p>
+  <div class="card">
+    <div class="row two">
+      <div class="field"><label>Название</label><input type="text" id="f-title" placeholder="Тихий юбилей"></div>
+      <div class="field"><label>Подзаголовок над названием</label><input type="text" id="f-kicker" placeholder="Детективный квест на один вечер"></div>
+    </div>
+    <div class="field"><label>Крючок — две строки, которые продают вечер</label>
+      <textarea id="f-hook" placeholder="Шесть гостей. Один хозяин дома, который не дожил до полуночи."></textarea></div>
+    <div class="row two">
+      <div class="field"><label>Как называть виновного</label><input type="text" id="f-culprit" placeholder="убийца"></div>
+      <div class="field"><label>Подпись к алиби в карточках</label><input type="text" id="f-alibi" placeholder="Где вы были с 22:00 до 22:15"></div>
+    </div>
+  </div>
+  <div class="card">
+    <h3>Завязка — читается вслух перед первым раундом</h3>
+    <div class="field"><textarea id="f-intro" rows="7" placeholder="Один абзац на строку. Пустые строки не нужны."></textarea></div>
+  </div>
+</section>
+
+<!-- ПОДОЗРЕВАЕМЫЕ -->
+<section class="page" id="p-sus">
+  <h2>Подозреваемые</h2>
+  <p class="hint">У каждого своя легенда, свой секрет и своё алиби. Виновный ровно один — отметьте его галочкой, остальное движок сделает сам.</p>
+  <div id="susList"></div>
+  <div class="btnrow">
+    <button class="btn" id="addSus">Добавить подозреваемого</button>
+    <span id="susLimit" class="lic" style="align-self:center"></span>
+  </div>
+</section>
+
+<!-- УЛИКИ -->
+<section class="page" id="p-clues">
+  <h2>Улики</h2>
+  <p class="hint">Ведущий открывает их по одной. Ставьте <code>*звёздочки*</code> вокруг важного — время, имена, числа: в игре они подсветятся золотым.</p>
+  <div id="rounds"></div>
+</section>
+
+<!-- РАЗВЯЗКА -->
+<section class="page" id="p-end">
+  <h2>Развязка</h2>
+  <p class="hint">Первое поле читается вслух как финал детектива. Второе — сухая цепочка рассуждения, по которой гости проверяют, могли ли они догадаться.</p>
+  <div class="card">
+    <h3>Как это было на самом деле</h3>
+    <div class="field"><textarea id="f-reveal" rows="8" placeholder="Один абзац на строку."></textarea></div>
+  </div>
+  <div class="card">
+    <h3>Цепочка, которая вела к нему</h3>
+    <div class="field"><textarea id="f-chain" rows="6" placeholder="По одному шагу на строку. *Звёздочками* выделяйте главное в шаге."></textarea></div>
+  </div>
+</section>
+
+<!-- ПРОВЕРКА -->
+<section class="page" id="p-check">
+  <h2>Проверка и выпуск</h2>
+  <p class="hint">Здесь ловятся ошибки, которые убивают домашний квест: двое виновных, пустые карточки, улики, которые ни на что не указывают.</p>
+  <div class="card"><div id="checks"></div></div>
+  <div id="exportBox"></div>
+</section>
+
+</div>
+
+<div class="bar"><div class="in">
+  <span class="st" id="status">Черновик сохраняется в браузере сам</span>
+  <button class="btn ghost sm" id="btnPlay">Сыграть черновик</button>
+  <button class="btn ghost sm" id="btnSave">Сохранить дело в файл</button>
+  <button class="btn ghost sm" id="btnLoad">Открыть дело</button>
+  <button class="btn ghost sm" id="btnNew">Новое дело</button>
+  <input type="file" id="fileIn" accept=".json" style="display:none">
+</div></div>
+
+<script>
+/* движок игры — уходит в каждый выпущенный файл */
+var ENGINE_CSS = "\n:root{\n  --bg:#12100e; --bg2:#1b1815; --panel:#221e1a; --line:#3a332c;\n  --ink:#ece4d8; --ink-dim:#a2968a; --gold:#c9a227; --gold-dim:#8a7420;\n  --red:#a33b32; --green:#4f7a4a;\n  --serif:Georgia,'Times New Roman',serif;\n  --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;\n}\n*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}\nhtml,body{margin:0;padding:0}\nbody{\n  background:var(--bg);color:var(--ink);font-family:var(--sans);\n  font-size:17px;line-height:1.6;min-height:100vh;\n  background-image:radial-gradient(ellipse at 50% -10%,rgba(201,162,39,.10),transparent 60%);\n}\n.wrap{max-width:780px;margin:0 auto;padding:24px 16px 80px}\nh1,h2,h3{font-family:var(--serif);font-weight:normal;margin:0 0 .4em;line-height:1.2}\nh1{font-size:clamp(28px,7vw,44px);letter-spacing:.01em}\nh2{font-size:clamp(22px,5vw,30px);color:var(--gold)}\nh3{font-size:19px;color:var(--ink)}\np{margin:0 0 1em}\n.muted{color:var(--ink-dim)}\n.small{font-size:14px}\n.center{text-align:center}\n.rule{height:1px;background:var(--line);margin:28px 0;border:0}\n.kicker{font-family:var(--sans);font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold-dim);margin-bottom:10px}\n\n/* screens */\n.screen{display:none;animation:fade .35s ease}\n.screen.on{display:block}\n@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}\n\n/* buttons */\nbutton{font:inherit;cursor:pointer;border:0}\n.btn{\n  display:inline-block;background:var(--gold);color:#1a1510;border-radius:6px;\n  padding:14px 26px;font-weight:600;font-size:16px;letter-spacing:.01em;\n  transition:filter .15s, transform .05s;\n}\n.btn:hover{filter:brightness(1.08)}\n.btn:active{transform:translateY(1px)}\n.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}\n.btn.ghost:hover{border-color:var(--gold-dim);filter:none}\n.btn.wide{display:block;width:100%;text-align:center}\n.btn.danger{background:var(--red);color:#fff}\n.btnrow{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}\n.btnrow .btn{flex:1;min-width:140px;text-align:center}\n\n/* panels */\n.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:20px;margin:16px 0}\n.panel.gold{border-color:var(--gold-dim)}\n.panel.tight{padding:14px 16px}\n\n/* clue cards */\n.clue{background:var(--bg2);border:1px solid var(--line);border-left:3px solid var(--gold-dim);\n  border-radius:8px;padding:16px 18px;margin:12px 0}\n.clue .no{font-family:var(--sans);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold-dim)}\n.clue h3{margin:6px 0 8px;font-size:18px}\n.clue .body{font-family:var(--serif);font-size:16.5px;line-height:1.65}\n.clue .body em{color:var(--gold);font-style:italic}\n\n/* role card */\n.rolecard{background:linear-gradient(180deg,#262119,#1c1814);border:1px solid var(--gold-dim);\n  border-radius:12px;padding:24px;margin:18px 0}\n.rolecard .name{font-family:var(--serif);font-size:28px;color:var(--gold);margin-bottom:2px}\n.rolecard .who{color:var(--ink-dim);font-size:15px;margin-bottom:18px}\n.sec{margin:18px 0 0}\n.sec .lbl{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold-dim);margin-bottom:6px}\n.sec .txt{font-family:var(--serif);font-size:16.5px;line-height:1.65}\n.warnbox{background:rgba(163,59,50,.12);border:1px solid rgba(163,59,50,.5);border-radius:8px;padding:14px 16px;margin:16px 0}\n\n/* lists */\nul.clean{list-style:none;padding:0;margin:0}\nul.clean li{padding:10px 0;border-bottom:1px solid var(--line)}\nul.clean li:last-child{border-bottom:0}\nol.steps{padding-left:22px;margin:0}\nol.steps li{margin-bottom:10px}\n\n/* pick grid */\n.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin:16px 0}\n.pick{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:14px;text-align:left;color:var(--ink);font-family:var(--serif);font-size:17px;transition:border-color .15s,background .15s}\n.pick:hover{border-color:var(--gold-dim)}\n.pick.sel{border-color:var(--gold);background:rgba(201,162,39,.10)}\n.pick .sub{display:block;font-family:var(--sans);font-size:12px;color:var(--ink-dim);margin-top:3px}\n\n/* progress */\n.steps-bar{display:flex;gap:6px;margin-bottom:20px}\n.steps-bar div{height:3px;flex:1;background:var(--line);border-radius:2px}\n.steps-bar div.done{background:var(--gold-dim)}\n.steps-bar div.now{background:var(--gold)}\n\n/* timer */\n.timer{font-family:var(--serif);font-size:44px;color:var(--gold);text-align:center;letter-spacing:.04em;margin:8px 0}\n\n/* print */\n.printonly{display:none}\n@media print{\n  body{background:#fff;color:#000}\n  .wrap{max-width:none;padding:0}\n  .screen,.noprint{display:none !important}\n  .printonly{display:block}\n  .pcard{page-break-after:always;padding:34px 30px;border:1px solid #999;margin:0 0 10px}\n  .pcard h2{color:#000;border-bottom:1px solid #000;padding-bottom:6px}\n  .pcard .lbl{color:#555;font-weight:bold}\n  .pclue{page-break-inside:avoid;border:1px solid #999;padding:16px;margin-bottom:14px}\n}\n";
+var ENGINE_BODY = "<div class=\"wrap\">\n\n<section id=\"s-title\" class=\"screen on\">\n  <div class=\"center\" style=\"padding:40px 0 10px\">\n    <div class=\"kicker\" id=\"t-kicker\"></div>\n    <h1 id=\"t-title\"></h1>\n    <p class=\"muted\" id=\"t-hook\" style=\"font-family:var(--serif);font-size:19px;max-width:520px;margin:14px auto 0\"></p>\n  </div>\n  <div class=\"panel\"><ul class=\"clean small\" id=\"t-facts\"></ul></div>\n  <div class=\"btnrow\">\n    <button class=\"btn\" onclick=\"go('s-host')\">Я ведущий — начать</button>\n    <button class=\"btn ghost\" onclick=\"go('s-print')\">Версия для печати</button>\n  </div>\n  <p class=\"small muted center\" style=\"margin-top:28px\">Прочитайте экран ведущего до прихода гостей — там 4 минуты чтения.</p>\n</section>\n\n<section id=\"s-host\" class=\"screen\">\n  <div class=\"kicker\">Шаг 1 из 4</div>\n  <h2>Как это работает</h2>\n  <p>Вы — ведущий. Вы единственный, кто знает разгадку. Ваша задача — раздать роли, зачитывать улики и следить за временем. Всё остальное сделают гости.</p>\n  <div class=\"panel gold\">\n    <h3>Порядок вечера</h3>\n    <ol class=\"steps\" id=\"h-order\"></ol>\n  </div>\n  <div class=\"warnbox\">\n    <b>Единственное правило для гостей:</b> врать можно и нужно — про свой секрет. Но про то, где вы были и что делали в конкретное время, врать нельзя: время в карточках настоящее. Скажите это вслух перед началом.\n  </div>\n  <h3>Что понадобится</h3>\n  <ul class=\"clean small\">\n    <li>Бумага и ручка каждому — записывать, кто что сказал</li>\n    <li>Это устройство или распечатанные карточки</li>\n    <li id=\"h-props\"></li>\n  </ul>\n  <div class=\"btnrow\">\n    <button class=\"btn ghost\" onclick=\"go('s-title')\">Назад</button>\n    <button class=\"btn\" onclick=\"go('s-setup')\">Дальше — состав игроков</button>\n  </div>\n</section>\n\n<section id=\"s-setup\" class=\"screen\">\n  <div class=\"kicker\">Шаг 2 из 4</div>\n  <h2>Кто играет</h2>\n  <p id=\"setup-note\"></p>\n  <div class=\"panel tight\"><p class=\"small muted\" style=\"margin:0\">Обязательные роли <span style=\"color:var(--gold)\">(включены всегда)</span></p></div>\n  <div class=\"grid\" id=\"coreGrid\"></div>\n  <div class=\"panel tight\" style=\"margin-top:24px\"><p class=\"small muted\" style=\"margin:0\">Дополнительные — нажмите, чтобы включить</p></div>\n  <div class=\"grid\" id=\"optGrid\"></div>\n  <p class=\"center\" style=\"margin-top:20px\">Игроков в партии: <b id=\"playerCount\" style=\"color:var(--gold);font-size:22px\">6</b></p>\n  <div class=\"btnrow\">\n    <button class=\"btn ghost\" onclick=\"go('s-host')\">Назад</button>\n    <button class=\"btn\" onclick=\"startDeal()\">Раздать роли</button>\n  </div>\n</section>\n\n<section id=\"s-deal\" class=\"screen\">\n  <div class=\"steps-bar\" id=\"dealBar\"></div>\n  <div id=\"dealPass\">\n    <div class=\"center\" style=\"padding:50px 0\">\n      <div class=\"kicker\">Раздача ролей</div>\n      <h2 id=\"passName\" style=\"font-size:32px\"></h2>\n      <p class=\"muted\" style=\"max-width:420px;margin:0 auto 30px\">Следующий игрок берёт устройство и уходит с ним на минуту. Остальные не подглядывают.</p>\n      <button class=\"btn\" onclick=\"revealRole()\">Я один — показать мою роль</button>\n    </div>\n  </div>\n  <div id=\"dealCard\" style=\"display:none\"></div>\n</section>\n\n<section id=\"s-intro\" class=\"screen\">\n  <div class=\"kicker\">Шаг 4 из 4 — читайте вслух</div>\n  <h2>Завязка</h2>\n  <div class=\"panel\" id=\"introText\" style=\"font-family:var(--serif);font-size:17.5px;line-height:1.7\"></div>\n  <div class=\"btnrow\"><button class=\"btn wide\" onclick=\"go('s-r1')\">Начать Раунд 1</button></div>\n</section>\n\n<section id=\"s-r1\" class=\"screen\"><div class=\"roundbox\" data-r=\"1\"></div></section>\n<section id=\"s-r2\" class=\"screen\"><div class=\"roundbox\" data-r=\"2\"></div></section>\n<section id=\"s-r3\" class=\"screen\"><div class=\"roundbox\" data-r=\"3\"></div></section>\n\n<section id=\"s-vote\" class=\"screen\">\n  <div class=\"kicker\">Развязка, часть 1</div>\n  <h2>Голосование</h2>\n  <p>Обсуждение закончено. По очереди, по кругу, каждый называет имя и одну причину — в одном предложении. Менять решение после того, как назвал, нельзя.</p>\n  <div class=\"panel gold\"><p style=\"margin:0\"><b>Ведущий, скажите вслух:</b> «Тот, кто действительно это сделал, тоже голосует. И может назвать кого угодно».</p></div>\n  <h3 style=\"margin-top:26px\">Отметьте, за кого сколько голосов</h3>\n  <div id=\"voteList\"></div>\n  <div class=\"btnrow\"><button class=\"btn danger wide\" onclick=\"go('s-reveal')\">Открыть правду</button></div>\n</section>\n\n<section id=\"s-reveal\" class=\"screen\">\n  <div class=\"kicker\">Развязка, часть 2 — читайте вслух</div>\n  <h2>Как это было на самом деле</h2>\n  <div class=\"panel\" id=\"revealText\" style=\"font-family:var(--serif);font-size:17.5px;line-height:1.7\"></div>\n  <div class=\"panel gold\">\n    <h3>Цепочка, которая вела к нему</h3>\n    <ol class=\"steps\" id=\"chainList\"></ol>\n  </div>\n  <h3 style=\"margin-top:26px\">Что скрывали остальные</h3>\n  <div id=\"secretsList\"></div>\n  <div class=\"panel tight center\" style=\"margin-top:26px\">\n    <p class=\"small muted\" style=\"margin:0\">Если игра понравилась — расскажите о ней тем, кто ищет, чем занять вечер. Это лучшее, что можно сделать для автора.</p>\n  </div>\n  <div class=\"btnrow\"><button class=\"btn ghost wide\" onclick=\"location.reload()\">Сыграть заново с другим составом</button></div>\n</section>\n\n<section id=\"s-print\" class=\"screen\">\n  <h2>Версия для печати</h2>\n  <p>Распечатайте карточки ролей — каждая на отдельном листе — и раздайте гостям. Улики распечатайте отдельно и выкладывайте на стол по одной: так играется заметно лучше, чем с экрана.</p>\n  <div class=\"panel tight\"><p class=\"small muted\" style=\"margin:0\">Совет: карточки ролей сложите пополам и подпишите снаружи только имя персонажа.</p></div>\n  <div class=\"btnrow\">\n    <button class=\"btn\" onclick=\"window.print()\">Печать</button>\n    <button class=\"btn ghost\" onclick=\"go('s-title')\">Назад</button>\n  </div>\n</section>\n\n</div>\n<div class=\"printonly\" id=\"printArea\"></div>\n";
+var ENGINE_JS = "/* Движок детективного квеста. Всё содержимое дела приходит из CASE. */\nvar ROLES = CASE.roles, CLUES = CASE.clues, ROUNDINFO = CASE.rounds;\nvar active = ROLES.filter(function(r){return r.core;}).map(function(r){return r.id;});\nvar dealIdx = 0, dealOrder = [], votes = {}, shown = {1:0,2:0,3:0};\n\nfunction esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');}\nfunction go(id){\n  document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('on');});\n  var el=document.getElementById(id); if(el) el.classList.add('on'); window.scrollTo(0,0);\n}\nfunction sec(lbl,txt){return '<div class=\"sec\"><div class=\"lbl\">'+esc(lbl)+'</div><div class=\"txt\">'+esc(txt)+'</div></div>';}\nfunction paras(arr){return arr.map(function(p){\n  return p.gold ? '<p style=\"color:var(--gold)\">'+p.t.replace(/\\*(.+?)\\*/g,'<b>$1</b>')+'</p>'\n                : '<p>'+esc(p.t||p)+'</p>';}).join('');}\n\n/* ---- титул и ведущий ---- */\nfunction renderStatic(){\n  document.title = CASE.title;\n  document.getElementById('t-kicker').textContent = CASE.kicker;\n  document.getElementById('t-title').textContent = CASE.title;\n  document.getElementById('t-hook').textContent = CASE.hook;\n  document.getElementById('t-facts').innerHTML = CASE.facts.map(function(f){\n    return '<li>'+f.replace(/\\*(.+?)\\*/g,'<b>$1</b>')+'</li>';}).join('');\n  document.getElementById('h-order').innerHTML = CASE.order.map(function(o){\n    return '<li>'+o.replace(/\\*(.+?)\\*/g,'<b>$1</b>')+'</li>';}).join('');\n  document.getElementById('h-props').textContent = CASE.props;\n  document.getElementById('setup-note').textContent = CASE.setupNote;\n  document.getElementById('introText').innerHTML = paras(CASE.intro);\n  document.getElementById('revealText').innerHTML = paras(CASE.reveal);\n  document.getElementById('chainList').innerHTML = CASE.chain.map(function(c){\n    return '<li>'+c.replace(/\\*(.+?)\\*/g,'<b>$1</b>')+'</li>';}).join('');\n}\n\n/* ---- состав ---- */\nfunction renderSetup(){\n  var core=document.getElementById('coreGrid'), opt=document.getElementById('optGrid');\n  core.innerHTML=''; opt.innerHTML='';\n  ROLES.forEach(function(r){\n    var b=document.createElement('button');\n    b.className='pick'+(active.indexOf(r.id)>-1?' sel':'');\n    b.innerHTML='<span class=\"nm\"></span><span class=\"sub\"></span>';\n    b.querySelector('.nm').textContent=r.name;\n    b.querySelector('.sub').textContent=r.who;\n    if(r.core){b.disabled=true;b.style.cursor='default';core.appendChild(b);}\n    else{b.onclick=function(){toggle(r.id);};opt.appendChild(b);}\n  });\n  document.getElementById('playerCount').textContent=active.length;\n}\nfunction toggle(id){var i=active.indexOf(id); if(i>-1)active.splice(i,1); else active.push(id); renderSetup();}\n\n/* ---- раздача ---- */\nfunction startDeal(){\n  dealOrder=ROLES.filter(function(r){return active.indexOf(r.id)>-1;});\n  for(var i=dealOrder.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=dealOrder[i];dealOrder[i]=dealOrder[j];dealOrder[j]=t;}\n  dealIdx=0; renderVote(); renderSecrets(); go('s-deal'); renderPass();\n}\nfunction renderBar(){\n  var bar=document.getElementById('dealBar'); bar.innerHTML='';\n  for(var i=0;i<dealOrder.length;i++){var d=document.createElement('div');\n    if(i<dealIdx)d.className='done'; else if(i===dealIdx)d.className='now'; bar.appendChild(d);}\n}\nfunction renderPass(){\n  renderBar();\n  document.getElementById('dealCard').style.display='none';\n  document.getElementById('dealPass').style.display='block';\n  document.getElementById('passName').textContent='Игрок '+(dealIdx+1)+' из '+dealOrder.length;\n}\nfunction revealRole(){\n  var r=dealOrder[dealIdx];\n  var h='<div class=\"rolecard\"><div class=\"name\"></div><div class=\"who\"></div>'\n    + sec('Кто вы для остальных', r.legend) + sec('Ваш секрет', r.secret)\n    + (r.plan ? sec('Что вы сделали', r.plan) : '')\n    + sec(CASE.alibiLabel, r.alibi) + sec('Ваша цель на вечер', r.goal) + sec('Как играть', r.tactic)\n    + '</div>';\n  if(r.killer) h+='<div class=\"warnbox\"><b>Вы '+esc(CASE.culpritWord)+'.</b> Не признавайтесь до самого конца, даже если на вас укажут все. Играть в проигранную позицию — самая интересная часть вечера, и только вы её получите.</div>';\n  h+='<div class=\"warnbox\">Запомнили? Никому не показывайте этот экран. Нажмите кнопку и верните устройство ведущему.</div>'\n   + '<div class=\"btnrow\"><button class=\"btn wide\" onclick=\"nextDeal()\">Я запомнил — скрыть роль</button></div>';\n  var card=document.getElementById('dealCard');\n  card.innerHTML=h;\n  card.querySelector('.name').textContent=r.name;\n  card.querySelector('.who').textContent=r.who;\n  document.getElementById('dealPass').style.display='none';\n  card.style.display='block'; window.scrollTo(0,0);\n}\nfunction nextDeal(){dealIdx++; if(dealIdx>=dealOrder.length){go('s-intro');} else {renderPass();window.scrollTo(0,0);}}\n\n/* ---- раунды ---- */\nfunction renderRounds(){\n  document.querySelectorAll('.roundbox').forEach(function(box){\n    var n=parseInt(box.getAttribute('data-r'),10), info=ROUNDINFO[n];\n    var h='<div class=\"kicker\">'+esc(info.sub)+'</div><h2>'+esc(info.title)+'</h2>'\n      +'<div class=\"panel gold\"><h3>Ведущему</h3><p style=\"margin:0\">'+esc(info.host)+'</p></div>';\n    CLUES[n].forEach(function(c,i){\n      h+='<div class=\"clue\" id=\"clue-'+n+'-'+i+'\" style=\"display:none\">'\n        +'<div class=\"no\">Улика '+(i+1)+' из '+CLUES[n].length+'</div>'\n        +'<h3>'+esc(c.t)+'</h3><div class=\"body\">'+c.b+'</div></div>';\n    });\n    h+='<div class=\"btnrow\" id=\"rbtn-'+n+'\"><button class=\"btn wide\" onclick=\"showClue('+n+')\">Открыть первую улику</button></div>'\n      +'<div class=\"panel tight\" id=\"push-'+n+'\" style=\"display:none\"><p class=\"small\" style=\"margin:0\"><b>Если разговор встал:</b> '+esc(info.push)+'</p></div>';\n    box.innerHTML=h;\n  });\n}\nfunction showClue(n){\n  var list=CLUES[n];\n  if(shown[n]<list.length){document.getElementById('clue-'+n+'-'+shown[n]).style.display='block'; shown[n]++;}\n  var btnbox=document.getElementById('rbtn-'+n);\n  if(shown[n]<list.length){\n    btnbox.innerHTML='<button class=\"btn wide\" onclick=\"showClue('+n+')\">Открыть улику '+(shown[n]+1)+' из '+list.length+'</button>';\n  } else {\n    document.getElementById('push-'+n).style.display='block';\n    var next=n<3?'s-r'+(n+1):'s-vote', lbl=n<3?'Дальше — Раунд '+(n+1):'Дальше — голосование';\n    btnbox.innerHTML='<button class=\"btn wide\" onclick=\"go(\\''+next+'\\')\">'+lbl+'</button>';\n  }\n  window.scrollTo(0,document.body.scrollHeight);\n}\n\n/* ---- голосование и развязка ---- */\nfunction renderVote(){\n  var h='';\n  ROLES.filter(function(r){return active.indexOf(r.id)>-1;}).forEach(function(r){\n    h+='<div class=\"panel tight\" style=\"display:flex;align-items:center;justify-content:space-between;gap:12px\">'\n      +'<span style=\"font-family:var(--serif);font-size:18px\">'+esc(r.name)+'</span>'\n      +'<span><button class=\"btn ghost\" style=\"padding:6px 14px\" onclick=\"vote(\\''+r.id+'\\',-1)\">−</button> '\n      +'<b id=\"v-'+r.id+'\" style=\"color:var(--gold);font-size:20px;min-width:24px;display:inline-block;text-align:center\">0</b> '\n      +'<button class=\"btn ghost\" style=\"padding:6px 14px\" onclick=\"vote(\\''+r.id+'\\',1)\">+</button></span></div>';\n  });\n  document.getElementById('voteList').innerHTML=h;\n}\nfunction vote(id,d){votes[id]=Math.max(0,(votes[id]||0)+d); document.getElementById('v-'+id).textContent=votes[id];}\nfunction renderSecrets(){\n  var h='';\n  ROLES.filter(function(r){return active.indexOf(r.id)>-1 && !r.killer;}).forEach(function(r){\n    h+='<div class=\"clue\"><h3>'+esc(r.name)+'</h3><div class=\"body\">'+esc(r.secret)+'</div></div>';\n  });\n  document.getElementById('secretsList').innerHTML=h;\n}\n\n/* ---- печать ---- */\nfunction renderPrint(){\n  var h='<h1 style=\"text-align:center\">'+esc(CASE.title)+'</h1><p style=\"text-align:center\">'+esc(CASE.kicker)+' · карточки ролей и улики</p>';\n  ROLES.forEach(function(r){\n    h+='<div class=\"pcard\"><h2>'+esc(r.name)+'</h2><p><i>'+esc(r.who)+'</i></p>'\n      +'<p><span class=\"lbl\">Кто вы для остальных.</span> '+esc(r.legend)+'</p>'\n      +'<p><span class=\"lbl\">Ваш секрет.</span> '+esc(r.secret)+'</p>'\n      +(r.plan?'<p><span class=\"lbl\">Что вы сделали.</span> '+esc(r.plan)+'</p>':'')\n      +'<p><span class=\"lbl\">'+esc(CASE.alibiLabel)+'.</span> '+esc(r.alibi)+'</p>'\n      +'<p><span class=\"lbl\">Ваша цель.</span> '+esc(r.goal)+'</p>'\n      +'<p><span class=\"lbl\">Как играть.</span> '+esc(r.tactic)+'</p></div>';\n  });\n  [1,2,3].forEach(function(n){\n    h+='<div class=\"pcard\"><h2>'+esc(ROUNDINFO[n].title)+'</h2>';\n    CLUES[n].forEach(function(c){\n      h+='<div class=\"pclue\"><b>'+esc(c.t)+'</b><br>'+c.b.replace(/<em>/g,'<b>').replace(/<\\/em>/g,'</b>')+'</div>';\n    });\n    h+='</div>';\n  });\n  document.getElementById('printArea').innerHTML=h;\n}\n\nrenderStatic(); renderSetup(); renderRounds(); renderVote(); renderSecrets(); renderPrint();\n";
+var SECRET = "YNZIZT8Oc8VrC8u8QnoPiXidy7wFjX5mBFPGXIK8PUpfrgTD";
+</script>
+<script>
+/* ============================================================
+   Проверка ключа в браузере. Работает на file://, без интернета,
+   без SubtleCrypto (его на file:// не существует).
+   Совпадает с keygen.py: HMAC-SHA256, первые 3 байта -> 4 символа.
+   ============================================================ */
+var Lic = (function () {
+  var AB = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+
+  /* --- SHA-256 --- */
+  var K = [];
+  (function () {
+    function frac(x, n) { return Math.floor((x - Math.floor(x)) * Math.pow(2, n)); }
+    var p = [], n = 2;
+    while (p.length < 64) {
+      var isP = true;
+      for (var d = 2; d * d <= n; d++) if (n % d === 0) { isP = false; break; }
+      if (isP) p.push(n);
+      n++;
+    }
+    for (var i = 0; i < 64; i++) K[i] = frac(Math.pow(p[i], 1 / 3), 32) >>> 0;
+  })();
+
+  function sha256(bytes) {
+    var H = [0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a,
+             0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19];
+    var l = bytes.length, bitLen = l * 8;
+    var withPad = l + 1;
+    while (withPad % 64 !== 56) withPad++;
+    var m = new Uint8Array(withPad + 8);
+    m.set(bytes); m[l] = 0x80;
+    var hi = Math.floor(bitLen / 0x100000000), lo = bitLen >>> 0;
+    m[withPad] = (hi >>> 24) & 255; m[withPad + 1] = (hi >>> 16) & 255;
+    m[withPad + 2] = (hi >>> 8) & 255; m[withPad + 3] = hi & 255;
+    m[withPad + 4] = (lo >>> 24) & 255; m[withPad + 5] = (lo >>> 16) & 255;
+    m[withPad + 6] = (lo >>> 8) & 255; m[withPad + 7] = lo & 255;
+
+    var w = new Array(64);
+    function rr(x, n) { return ((x >>> n) | (x << (32 - n))) >>> 0; }
+
+    for (var off = 0; off < m.length; off += 64) {
+      for (var i = 0; i < 16; i++)
+        w[i] = ((m[off + i * 4] << 24) | (m[off + i * 4 + 1] << 16) |
+                (m[off + i * 4 + 2] << 8) | m[off + i * 4 + 3]) >>> 0;
+      for (i = 16; i < 64; i++) {
+        var s0 = (rr(w[i - 15], 7) ^ rr(w[i - 15], 18) ^ (w[i - 15] >>> 3)) >>> 0;
+        var s1 = (rr(w[i - 2], 17) ^ rr(w[i - 2], 19) ^ (w[i - 2] >>> 10)) >>> 0;
+        w[i] = (w[i - 16] + s0 + w[i - 7] + s1) >>> 0;
+      }
+      var a = H[0], b = H[1], c = H[2], d = H[3], e = H[4], f = H[5], g = H[6], h = H[7];
+      for (i = 0; i < 64; i++) {
+        var S1 = (rr(e, 6) ^ rr(e, 11) ^ rr(e, 25)) >>> 0;
+        var ch = ((e & f) ^ (~e & g)) >>> 0;
+        var t1 = (h + S1 + ch + K[i] + w[i]) >>> 0;
+        var S0 = (rr(a, 2) ^ rr(a, 13) ^ rr(a, 22)) >>> 0;
+        var mj = ((a & b) ^ (a & c) ^ (b & c)) >>> 0;
+        var t2 = (S0 + mj) >>> 0;
+        h = g; g = f; f = e; e = (d + t1) >>> 0;
+        d = c; c = b; b = a; a = (t1 + t2) >>> 0;
+      }
+      H[0] = (H[0] + a) >>> 0; H[1] = (H[1] + b) >>> 0;
+      H[2] = (H[2] + c) >>> 0; H[3] = (H[3] + d) >>> 0;
+      H[4] = (H[4] + e) >>> 0; H[5] = (H[5] + f) >>> 0;
+      H[6] = (H[6] + g) >>> 0; H[7] = (H[7] + h) >>> 0;
+    }
+    var out = new Uint8Array(32);
+    for (var j = 0; j < 8; j++) {
+      out[j * 4] = (H[j] >>> 24) & 255; out[j * 4 + 1] = (H[j] >>> 16) & 255;
+      out[j * 4 + 2] = (H[j] >>> 8) & 255; out[j * 4 + 3] = H[j] & 255;
+    }
+    return out;
+  }
+
+  function utf8(s) {
+    var out = [], i, c;
+    for (i = 0; i < s.length; i++) {
+      c = s.charCodeAt(i);
+      if (c < 0x80) out.push(c);
+      else if (c < 0x800) out.push(0xc0 | (c >> 6), 0x80 | (c & 63));
+      else out.push(0xe0 | (c >> 12), 0x80 | ((c >> 6) & 63), 0x80 | (c & 63));
+    }
+    return new Uint8Array(out);
+  }
+
+  function hmac(keyStr, msgStr) {
+    var key = utf8(keyStr);
+    if (key.length > 64) key = sha256(key);
+    var pad = new Uint8Array(64); pad.set(key);
+    var ipad = new Uint8Array(64), opad = new Uint8Array(64);
+    for (var i = 0; i < 64; i++) { ipad[i] = pad[i] ^ 0x36; opad[i] = pad[i] ^ 0x5c; }
+    var msg = utf8(msgStr);
+    var inner = new Uint8Array(64 + msg.length);
+    inner.set(ipad); inner.set(msg, 64);
+    var ih = sha256(inner);
+    var outer = new Uint8Array(96);
+    outer.set(opad); outer.set(ih, 64);
+    return sha256(outer);
+  }
+
+  function checksum(product, body, secret) {
+    var d = hmac(secret, product + "|" + body);
+    var n = (d[0] << 16) | (d[1] << 8) | d[2];
+    var s = "";
+    for (var i = 0; i < 4; i++) s += AB.charAt((n >> (5 * i)) & 31);
+    return s;
+  }
+
+  return {
+    /* Ключ рабочий? product — код товара, secret — тот же, что в secret.txt */
+    check: function (key, product, secret) {
+      if (!key) return false;
+      var p = String(key).trim().toUpperCase().replace(/\s+/g, "").split("-");
+      if (p.length !== 4) return false;
+      if (p[0] !== product) return false;
+      return checksum(p[0], p[1] + "-" + p[2], secret) === p[3];
+    },
+    /* Запомнить активацию. Хранилище может быть недоступно — это не ошибка. */
+    remember: function (slot, key) {
+      try { localStorage.setItem(slot, key); } catch (e) {}
+    },
+    recall: function (slot) {
+      try { return localStorage.getItem(slot) || ""; } catch (e) { return ""; }
+    },
+    forget: function (slot) {
+      try { localStorage.removeItem(slot); } catch (e) {}
+    },
+    _sha256: sha256, _hmac: hmac
+  };
+})();
+if (typeof module !== "undefined") module.exports = Lic;
+
+</script>
+<script>
+/* ===== Мастерская детектива — редактор ===== */
+var PRODUCT = "QUEST";
+var FREE = { sus: 4, rounds: 1, clues: 4 };
+var SLOT = "md.key", DRAFT = "md.draft";
+
+var C, pro = false, openSus = -1;
+
+function blank() {
+  return {
+    title: "", kicker: "Детективный квест на один вечер", hook: "",
+    culpritWord: "убийца", alibiLabel: "Где вы были в момент преступления",
+    introRaw: "", revealRaw: "", chainRaw: "",
+    roles: [mkRole(), mkRole(), mkRole(), mkRole()],
+    clues: { 1: [mkClue(), mkClue(), mkClue(), mkClue()], 2: [], 3: [] }
+  };
+}
+function mkRole() { return { name: "", who: "", legend: "", secret: "", plan: "", alibi: "", goal: "", tactic: "", killer: false, opt: false }; }
+function mkClue() { return { t: "", b: "" }; }
+
+/* ---------- хранилище ---------- */
+function save() {
+  try { localStorage.setItem(DRAFT, JSON.stringify(C)); } catch (e) {}
+  setStatus("Черновик сохранён");
+}
+function load() {
+  try { var s = localStorage.getItem(DRAFT); if (s) return JSON.parse(s); } catch (e) {}
+  return null;
+}
+var stT;
+function setStatus(t) {
+  var el = document.getElementById("status");
+  el.textContent = t; clearTimeout(stT);
+  stT = setTimeout(function () { el.textContent = "Черновик сохраняется в браузере сам"; }, 2200);
+}
+
+/* ---------- лицензия ---------- */
+function licInit() {
+  var k = Lic.recall(SLOT);
+  pro = !!k && Lic.check(k, PRODUCT, SECRET);
+  var b = document.getElementById("licBadge");
+  b.innerHTML = pro ? "<b>Полная версия</b>" : "Демо-версия";
+}
+function activate(key, msgEl) {
+  if (Lic.check(key, PRODUCT, SECRET)) {
+    Lic.remember(SLOT, key.trim().toUpperCase());
+    pro = true; licInit(); renderAll();
+    msgEl.className = "msg ok"; msgEl.textContent = "Готово. Полная версия открыта.";
+    return true;
+  }
+  msgEl.className = "msg bad";
+  msgEl.textContent = "Такой ключ не подходит. Проверьте, не потерялся ли символ при копировании.";
+  return false;
+}
+function lockBox(what) {
+  return '<div class="lock"><div class="big">' + what + ' — в полной версии</div>'
+    + '<p>Демо даёт ' + FREE.sus + ' подозреваемых, один раунд и игру с экрана — этого хватает, чтобы понять,'
+    + ' ваше это или нет.</p><p>Полная версия снимает ограничения и добавляет печать,'
+    + ' сохранение дела и выпуск отдельного файла с игрой.</p>'
+    + '<div class="keyrow"><input type="text" placeholder="QUEST-XXXX-XXXX-XXXX" id="keyIn-' + (++lockN) + '">'
+    + '<button class="btn" onclick="tryKey(' + lockN + ')">Активировать</button></div>'
+    + '<div class="msg" id="keyMsg-' + lockN + '"></div></div>';
+}
+var lockN = 0;
+function tryKey(n) { activate(document.getElementById("keyIn-" + n).value, document.getElementById("keyMsg-" + n)); }
+
+/* ---------- вкладки ---------- */
+var TABS = [["p-case", "Дело"], ["p-sus", "Подозреваемые"], ["p-clues", "Улики"], ["p-end", "Развязка"], ["p-check", "Проверка"]];
+function renderTabs() {
+  var bad = problems().filter(function (p) { return p.s === "bad"; }).length;
+  document.getElementById("tabs").innerHTML = TABS.map(function (t) {
+    var on = document.getElementById(t[0]).classList.contains("on");
+    var w = (t[0] === "p-check" && bad) ? '<span class="warn">' + bad + '</span>' : "";
+    return '<button class="tab' + (on ? " on" : "") + '" onclick="go(\'' + t[0] + '\')">' + t[1] + w + '</button>';
+  }).join("");
+}
+function go(id) {
+  TABS.forEach(function (t) { document.getElementById(t[0]).classList.remove("on"); });
+  document.getElementById(id).classList.add("on");
+  if (id === "p-check") renderCheck();
+  renderTabs(); window.scrollTo(0, 0);
+}
+
+/* ---------- форма дела ---------- */
+function bindCase() {
+  [["f-title", "title"], ["f-kicker", "kicker"], ["f-hook", "hook"],
+   ["f-culprit", "culpritWord"], ["f-alibi", "alibiLabel"],
+   ["f-intro", "introRaw"], ["f-reveal", "revealRaw"], ["f-chain", "chainRaw"]].forEach(function (p) {
+    var el = document.getElementById(p[0]);
+    el.value = C[p[1]] || "";
+    el.oninput = function () { C[p[1]] = el.value; save(); renderTabs(); };
+  });
+}
+
+/* ---------- подозреваемые ---------- */
+var RF = [["name", "Имя", 0], ["who", "Кто он: возраст, роль в этой истории", 0],
+  ["legend", "Кто вы для остальных", 1], ["secret", "Ваш секрет", 1],
+  ["alibi", "Где вы были", 1], ["goal", "Ваша цель на вечер", 1],
+  ["tactic", "Как играть", 1]];
+
+function renderSus() {
+  var lim = pro ? 8 : FREE.sus;
+  document.getElementById("susLimit").textContent =
+    C.roles.length + " из " + lim + (pro ? "" : " в демо");
+  document.getElementById("addSus").disabled = C.roles.length >= lim;
+
+  document.getElementById("susList").innerHTML = C.roles.map(function (r, i) {
+    var h = '<div class="sus' + (r.killer ? " culprit" : "") + (i === openSus ? " open" : "") + '">'
+      + '<div class="head" onclick="toggleSus(' + i + ')">'
+      + '<span class="chev">' + (i === openSus ? "▾" : "▸") + '</span>'
+      + '<span class="nm">' + (r.name ? esc(r.name) : '<span class="empty">без имени</span>') + '</span>'
+      + (r.killer ? '<span class="tag c">виновный</span>' : "")
+      + (r.opt ? '<span class="tag o">дополнительный</span>' : "")
+      + '</div><div class="body">';
+    RF.forEach(function (f) {
+      h += '<div class="field"><label>' + f[1] + '</label>'
+        + (f[2] ? '<textarea oninput="setR(' + i + ',\'' + f[0] + '\',this.value)">' + esc(r[f[0]]) + '</textarea>'
+                : '<input type="text" oninput="setR(' + i + ',\'' + f[0] + '\',this.value)" value="' + esc(r[f[0]]) + '">')
+        + '</div>';
+    });
+    if (r.killer) h += '<div class="field"><label>Что вы сделали — только для карточки виновного</label>'
+      + '<textarea oninput="setR(' + i + ',\'plan\',this.value)">' + esc(r.plan) + '</textarea></div>';
+    h += '<div class="btnrow">'
+      + '<button class="btn ghost sm" onclick="setKiller(' + i + ')">' + (r.killer ? "Снять отметку виновного" : "Это виновный") + '</button>'
+      + '<button class="btn ghost sm" onclick="setR(' + i + ',\'opt\',' + !r.opt + ')">' + (r.opt ? "Сделать обязательным" : "Сделать дополнительным") + '</button>'
+      + '<button class="btn danger sm" onclick="delSus(' + i + ')">Удалить</button></div>';
+    return h + "</div></div>";
+  }).join("");
+}
+function toggleSus(i) { openSus = openSus === i ? -1 : i; renderSus(); }
+function setR(i, k, v) { C.roles[i][k] = v; save(); if (k === "name" || k === "opt") renderSus(); renderTabs(); }
+function setKiller(i) {
+  var was = C.roles[i].killer;
+  C.roles.forEach(function (r) { r.killer = false; });
+  C.roles[i].killer = !was;
+  save(); renderSus(); renderTabs();
+}
+function delSus(i) { C.roles.splice(i, 1); if (openSus >= C.roles.length) openSus = -1; save(); renderSus(); renderTabs(); }
+
+/* ---------- улики ---------- */
+function renderClues() {
+  var h = "";
+  for (var n = 1; n <= 3; n++) {
+    var open = pro || n <= FREE.rounds;
+    h += '<div class="round' + (open ? "" : " locked") + '"><h3>Раунд ' + n + '</h3>';
+    if (!open) { h += '</div>'; continue; }
+    C.clues[n].forEach(function (c, i) {
+      h += '<div class="clue"><div class="no">Улика ' + (i + 1) + '</div>'
+        + '<div class="field"><label>Заголовок</label><input type="text" value="' + esc(c.t)
+        + '" oninput="setC(' + n + ',' + i + ',\'t\',this.value)"></div>'
+        + '<div class="field"><label>Текст</label><textarea oninput="setC(' + n + ',' + i + ',\'b\',this.value)">' + esc(c.b) + '</textarea></div>'
+        + '<button class="btn danger sm" onclick="delC(' + n + ',' + i + ')">Удалить улику</button></div>';
+    });
+    var lim = pro ? 6 : FREE.clues;
+    h += '<button class="btn ghost sm" onclick="addC(' + n + ')"' + (C.clues[n].length >= lim ? " disabled" : "") + '>Добавить улику</button>';
+    h += '</div>';
+  }
+  if (!pro) h += lockBox("Второй и третий раунды");
+  document.getElementById("rounds").innerHTML = h;
+}
+function setC(n, i, k, v) { C.clues[n][i][k] = v; save(); renderTabs(); }
+function addC(n) { C.clues[n].push(mkClue()); save(); renderClues(); renderTabs(); }
+function delC(n, i) { C.clues[n].splice(i, 1); save(); renderClues(); renderTabs(); }
+
+function esc(s) { return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/"/g, "&quot;"); }
+
+/* ---------- проверка ---------- */
+function lines(s) { return String(s || "").split("\n").map(function (x) { return x.trim(); }).filter(Boolean); }
+
+function problems() {
+  var p = [], k = C.roles.filter(function (r) { return r.killer; });
+  var need = ["name", "legend", "secret", "alibi"];
+
+  p.push(C.title.trim()
+    ? { s: "ok", t: "У дела есть название", d: "«" + C.title + "»" }
+    : { s: "bad", t: "Нет названия", d: "Без него игра не соберётся." });
+
+  if (k.length === 1) p.push({ s: "ok", t: "Виновный ровно один", d: k[0].name || "без имени" });
+  else if (k.length === 0) p.push({ s: "bad", t: "Виновный не отмечен", d: "Отметьте одного на вкладке «Подозреваемые»." });
+  else p.push({ s: "bad", t: "Виновных отмечено " + k.length, d: "Должен быть ровно один." });
+
+  var minS = 4;
+  p.push(C.roles.length >= minS
+    ? { s: "ok", t: "Подозреваемых " + C.roles.length, d: "Хватает, чтобы было кого подозревать." }
+    : { s: "bad", t: "Подозреваемых всего " + C.roles.length, d: "Меньше четырёх — расследовать нечего." });
+
+  var empty = C.roles.filter(function (r) { return need.some(function (f) { return !String(r[f]).trim(); }); });
+  p.push(empty.length === 0
+    ? { s: "ok", t: "Все карточки заполнены", d: "Имя, легенда, секрет и алиби есть у каждого." }
+    : { s: "bad", t: "Незаполненных карточек: " + empty.length, d: "Пустые поля попадут в игру как пустые: " + empty.map(function (r) { return r.name || "без имени"; }).join(", ") });
+
+  if (k.length === 1) p.push(String(k[0].plan).trim()
+    ? { s: "ok", t: "У виновного описано, что он сделал", d: "Это его главная подсказка по игре." }
+    : { s: "warn", t: "У виновного пусто поле «Что вы сделали»", d: "Без него человеку тяжело играть свою роль." });
+
+  p.push(lines(C.introRaw).length >= 2
+    ? { s: "ok", t: "Завязка написана", d: lines(C.introRaw).length + " абзаца" }
+    : { s: "bad", t: "Завязки почти нет", d: "Нужно хотя бы два абзаца — их читают вслух." });
+
+  p.push(lines(C.revealRaw).length >= 2
+    ? { s: "ok", t: "Развязка написана", d: lines(C.revealRaw).length + " абзаца" }
+    : { s: "bad", t: "Развязки почти нет", d: "Это финал вечера, на нём всё держится." });
+
+  var ch = lines(C.chainRaw);
+  p.push(ch.length >= 2
+    ? { s: "ok", t: "Цепочка вывода из " + ch.length + " шагов", d: "По ней гости проверят, могли ли догадаться." }
+    : { s: "bad", t: "Цепочка вывода короче двух шагов", d: "Без неё разгадка выглядит как выдумка ведущего." });
+
+  var rn = pro ? 3 : FREE.rounds, tot = 0, thin = [];
+  for (var n = 1; n <= rn; n++) {
+    tot += C.clues[n].length;
+    if (C.clues[n].length < 3) thin.push(n);
+  }
+  p.push(thin.length === 0
+    ? { s: "ok", t: "Улик достаточно: " + tot, d: "В каждом раунде есть чем занять разговор." }
+    : { s: "warn", t: "Тонкие раунды: " + thin.join(", "), d: "Меньше трёх улик — раунд закончится за пять минут." });
+
+  var badClue = [];
+  for (n = 1; n <= rn; n++) C.clues[n].forEach(function (c, i) {
+    if (!String(c.t).trim() || !String(c.b).trim()) badClue.push("раунд " + n + ", улика " + (i + 1));
+  });
+  p.push(badClue.length === 0
+    ? { s: "ok", t: "Все улики заполнены", d: "У каждой есть заголовок и текст." }
+    : { s: "bad", t: "Пустых улик: " + badClue.length, d: badClue.join("; ") });
+
+  var named = C.roles.filter(function (r) { return r.name.trim(); }).map(function (r) { return r.name.trim(); });
+  var allClues = "";
+  for (n = 1; n <= rn; n++) allClues += C.clues[n].map(function (c) { return c.t + " " + c.b; }).join(" ");
+  var unseen = named.filter(function (nm) {
+    var first = nm.split(/\s+/)[0];
+    return first.length > 2 && allClues.toLowerCase().indexOf(first.toLowerCase()) === -1;
+  });
+  p.push(unseen.length === 0
+    ? { s: "ok", t: "Каждый упомянут в уликах", d: "Ни один подозреваемый не выпал из расследования." }
+    : { s: "warn", t: "В уликах не упомянуты: " + unseen.join(", "), d: "Про них нечего будет спросить — они просто просидят вечер." });
+
+  if (k.length === 1) {
+    var kn = k[0].name.trim().split(/\s+/)[0];
+    p.push(kn && allClues.toLowerCase().indexOf(kn.toLowerCase()) > -1
+      ? { s: "ok", t: "К виновному ведёт хотя бы одна улика", d: "Дело решается, а не угадывается." }
+      : { s: "warn", t: "Виновный не упомянут ни в одной улике", d: "Тогда вычислить его нельзя — только угадать." });
+  }
+  return p;
+}
+
+function renderCheck() {
+  var p = problems();
+  document.getElementById("checks").innerHTML = p.map(function (x) {
+    return '<div class="chk ' + x.s + '"><span class="mk">' + (x.s === "ok" ? "✓" : x.s === "bad" ? "✕" : "!") + '</span>'
+      + '<span class="tx"><b>' + esc(x.t) + '</b><span>' + esc(x.d) + '</span></span></div>';
+  }).join("");
+
+  var bad = p.filter(function (x) { return x.s === "bad"; }).length;
+  var box = document.getElementById("exportBox");
+  if (!pro) { box.innerHTML = lockBox("Печать и выпуск готового файла"); return; }
+  box.innerHTML = '<div class="card"><h3>Выпуск</h3>'
+    + '<p class="hint" style="margin-bottom:14px">Готовый файл — это отдельная самодостаточная игра. Её можно отдать другому ведущему, распечатать или продавать.</p>'
+    + '<div class="btnrow">'
+    + '<button class="btn" onclick="exportHTML()"' + (bad ? " disabled" : "") + '>Выпустить файл с игрой</button>'
+    + '<button class="btn ghost" onclick="playDraft()">Открыть и посмотреть</button>'
+    + '</div>'
+    + (bad ? '<p class="hint" style="margin-top:12px;color:var(--red)">Сначала закройте ' + bad + ' помеченных крестиком — иначе игра развалится за столом.</p>' : "")
+    + '</div>';
+}
+
+/* ---------- сборка игры ---------- */
+function toEngine() {
+  var rn = pro ? 3 : FREE.rounds;
+  var roles = C.roles.map(function (r, i) {
+    return {
+      id: "r" + i, core: !r.opt, killer: !!r.killer,
+      name: r.name || "Без имени", who: r.who || "",
+      legend: r.legend || "", secret: r.secret || "", plan: r.plan || "",
+      alibi: r.alibi || "", goal: r.goal || "", tactic: r.tactic || ""
+    };
+  });
+  var clues = {}, rounds = {};
+  var TT = ["", "Раунд 1 — Место происшествия", "Раунд 2 — Кто где был", "Раунд 3 — Лишние вещи"];
+  for (var n = 1; n <= 3; n++) {
+    clues[n] = (n <= rn ? C.clues[n] : []).map(function (c) {
+      return { t: c.t || "Улика", b: (c.b || "").replace(/\*(.+?)\*/g, "<em>$1</em>") };
+    });
+    if (!clues[n].length) clues[n] = [{ t: "Улик в этом раунде нет", b: "Раунд можно пропустить." }];
+    rounds[n] = {
+      title: TT[n], sub: "20–25 минут",
+      host: "Откройте улики по очереди, читая вслух. После каждой давайте десять–пятнадцать секунд тишины, потом дайте гостям свободно поговорить.",
+      push: "Если разговор встал — попросите каждого ещё раз назвать, где он был и кто это подтвердит."
+    };
+  }
+  function paras(raw) {
+    return lines(raw).map(function (t, i, a) { return { t: t, gold: i === a.length - 1 && a.length > 1 }; });
+  }
+  var nCore = roles.filter(function (r) { return r.core; }).length;
+  return {
+    slug: "quest", title: C.title || "Без названия", kicker: C.kicker || "Детективный квест",
+    hook: C.hook || "", culpritWord: C.culpritWord || "виновный",
+    alibiLabel: C.alibiLabel || "Где вы были",
+    facts: ["*" + nCore + "–" + roles.length + " игроков* + ведущий", "*90–120 минут*",
+            "*Без подготовки.* Роли раздаются с этого же экрана",
+            "*Работает без интернета.* Один файл, откроется на любом устройстве"],
+    order: ["*Раздача ролей (10 мин).* Передавайте устройство по кругу.",
+            "*Вступление (5 мин).* Вы читаете завязку вслух.",
+            "*Раунд 1 (20 мин).* Улики и первые вопросы.",
+            "*Раунд 2 (25 мин).* Разбор алиби.",
+            "*Раунд 3 (25 мин).* Круг обвинений.",
+            "*Голосование и развязка (15 мин).*"],
+    props: "По желанию: свечи, бумага и ручки каждому",
+    setupNote: "Обязательные роли включены всегда. Дополнительные включите, если гостей больше.",
+    intro: paras(C.introRaw), reveal: paras(C.revealRaw),
+    chain: lines(C.chainRaw), roles: roles, clues: clues, rounds: rounds
+  };
+}
+
+function buildHTML() {
+  var c = toEngine();
+  return "<!DOCTYPE html>\n<html lang=\"ru\">\n<head>\n<meta charset=\"UTF-8\">\n"
+    + "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n"
+    + "<title>" + esc(c.title) + " — детективный квест</title>\n"
+    + "<style>\n" + ENGINE_CSS + "</style>\n</head>\n<body>\n"
+    + ENGINE_BODY + "\n<script>\nvar CASE = " + JSON.stringify(c) + ";\n"
+    + ENGINE_JS + "\n<\/script>\n</body>\n</html>\n";
+}
+function dlNative(name, text, type) {
+  var b = new Blob([text], { type: (type || "text/plain") + ";charset=utf-8" });
+  var u = URL.createObjectURL(b), a = document.createElement("a");
+  a.href = u; a.download = name; document.body.appendChild(a); a.click();
+  setTimeout(function () { URL.revokeObjectURL(u); a.remove(); }, 1500);
+}
+// Скачивание работает двумя путями.
+// Обычный файл на диске: ссылка с download — как всегда.
+// Страница, опубликованная в интернете: там ссылка-скачивание не срабатывает,
+// файл отдаётся через отдельную возможность, и человек подтверждает сохранение.
+function dl(name, text, type) {
+  function say(t) { if (typeof setStatus === "function") setStatus(t); }
+  if (window.claude && typeof window.claude.use === "function") {
+    try {
+      window.claude.use("downloads").then(function (d) {
+        if (!d) { dlNative(name, text, type); return; }
+        d.save({ filename: name, data: text }).catch(function (e) {
+          if (e && e.code === "declined") { say("Сохранение отменено"); return; }
+          dlNative(name, text, type);
+        });
+      }, function () { dlNative(name, text, type); });
+    } catch (e) { dlNative(name, text, type); }
+    return;
+  }
+  dlNative(name, text, type);
+}
+function fname() {
+  return (C.title || "kvest").replace(/[\\/:*?"<>|]/g, "").trim().slice(0, 60) || "kvest";
+}
+function exportHTML() { dl(fname() + ".html", buildHTML(), "text/html"); setStatus("Файл с игрой выпущен"); }
+function playDraft() {
+  var w = window.open("", "_blank");
+  if (!w) { setStatus("Браузер заблокировал новое окно"); return; }
+  w.document.open(); w.document.write(buildHTML()); w.document.close();
+}
+
+/* ---------- файлы дела ---------- */
+function saveCase() {
+  if (!pro) { go("p-check"); return; }
+  dl(fname() + ".json", JSON.stringify(C, null, 1), "application/json");
+  setStatus("Дело сохранено в файл");
+}
+function loadCase(f) {
+  var r = new FileReader();
+  r.onload = function () {
+    try {
+      var d = JSON.parse(r.result);
+      if (!d.roles || !d.clues) throw 0;
+      C = d; openSus = -1; save(); renderAll(); setStatus("Дело открыто");
+    } catch (e) { setStatus("Это не файл дела — внутри не то, что ожидалось"); }
+  };
+  r.readAsText(f);
+}
+
+/* ---------- запуск ---------- */
+function renderAll() { bindCase(); renderSus(); renderClues(); renderCheck(); renderTabs(); }
+
+(function () {
+  C = load() || blank();
+  if (!C.clues) C.clues = { 1: [], 2: [], 3: [] };
+  [1, 2, 3].forEach(function (n) { if (!C.clues[n]) C.clues[n] = []; });
+  licInit(); renderAll();
+
+  document.getElementById("addSus").onclick = function () {
+    var lim = pro ? 8 : FREE.sus;
+    if (C.roles.length >= lim) return;
+    C.roles.push(mkRole()); openSus = C.roles.length - 1; save(); renderSus(); renderTabs();
+  };
+  document.getElementById("btnPlay").onclick = playDraft;
+  document.getElementById("btnSave").onclick = saveCase;
+  document.getElementById("btnLoad").onclick = function () { document.getElementById("fileIn").click(); };
+  document.getElementById("fileIn").onchange = function () { if (this.files[0]) loadCase(this.files[0]); this.value = ""; };
+  document.getElementById("btnNew").onclick = function () {
+    C = blank(); openSus = -1; save(); renderAll(); go("p-case"); setStatus("Начато новое дело");
+  };
+})();
+
+</script>
+</body>
+</html>
