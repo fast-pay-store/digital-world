@@ -35,6 +35,10 @@
     "tanki-bitva-s-ii",
     "pereigray-ii",
     "nauchi-skaynet-strelyat",
+    "novogodniy-detektivnyy-kvest",
+    "detektivnyy-kvest-tihiy-yubiley",
+    "detektivnyy-kvest-na-korporativ",
+    "besplatnyy-mini-detektiv",
     "pechat-lko",
     "shoptitans-spravochnik",
     "world-of-fishers-gid-po-rybam"
@@ -63,6 +67,11 @@
       "about": "Игры в Roblox, где соперник — нейросеть, которая учится на каждом бою."
     },
     {
+      "id": "kvesty",
+      "name": "Детективные квесты",
+      "about": "Готовые детективные игры для компании: один файл, роли, улики и сценарий ведущего — для праздника, Нового года и корпоратива."
+    },
+    {
       "id": "igry-drugie",
       "name": "Другие игры",
       "about": "Небольшие игры для телефона и компьютера."
@@ -75,7 +84,8 @@
   ],
   "category_of": {
     "pechat-lko": "servisy",
-    "shoptitans-spravochnik": "servisy"
+    "shoptitans-spravochnik": "servisy",
+    "besplatnyy-mini-detektiv": "kvesty"
   },
   "watch": [
     {

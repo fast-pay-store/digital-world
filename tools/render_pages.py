@@ -117,6 +117,9 @@ def render(folder, cfg, all_pages):
         app['gamePlatform'] = d['game_platform']
     if d.get('offers_free'):
         app['offers'] = {'@type': 'Offer', 'price': '0', 'priceCurrency': 'RUB'}
+    elif d.get('offer_price'):
+        app['offers'] = {'@type': 'Offer', 'price': str(d['offer_price']), 'priceCurrency': 'RUB',
+                         'availability': 'https://schema.org/InStock', 'url': d.get('offer_url', url)}
     ld = [app, {
         '@context': 'https://schema.org', '@type': 'BreadcrumbList', 'itemListElement': [
             {'@type': 'ListItem', 'position': 1, 'name': 'Каталог', 'item': base},
