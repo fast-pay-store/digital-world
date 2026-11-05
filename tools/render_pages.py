@@ -113,6 +113,12 @@ def render(folder, cfg, all_pages):
         'image': url + hero_src,
         'publisher': {'@type': 'Organization', 'name': 'Digital World', 'url': base},
     }
+    if d.get('schema_type') == 'Article':
+        app = {'@context': 'https://schema.org', '@type': 'Article', 'headline': d['h1'], 'description': d['description'],
+               'url': url, 'inLanguage': 'ru', 'image': url + hero_src, 'datePublished': d.get('date', '2026-11-05'),
+               'dateModified': d.get('date', '2026-11-05'),
+               'author': {'@type': 'Organization', 'name': 'Digital World', 'url': base},
+               'publisher': {'@type': 'Organization', 'name': 'Digital World', 'url': base}}
     if d.get('game_platform'):
         app['gamePlatform'] = d['game_platform']
     if d.get('offers_free'):

@@ -41,7 +41,9 @@
     "besplatnyy-mini-detektiv",
     "pechat-lko",
     "shoptitans-spravochnik",
-    "world-of-fishers-gid-po-rybam"
+    "world-of-fishers-gid-po-rybam",
+    "kak-provesti-detektivnyy-kvest",
+    "igry-na-novyy-god-dlya-kompanii"
   ],
   "exclude": [
     "tools"
@@ -80,6 +82,11 @@
       "id": "servisy",
       "name": "Сервисы и гайды",
       "about": "Онлайн-сервисы и справочники."
+    },
+    {
+      "id": "stati",
+      "name": "Статьи и идеи",
+      "about": "Советы, как провести вечер с друзьями: детективные игры, новогодние развлечения, игры онлайн."
     }
   ],
   "category_of": {
