@@ -464,6 +464,12 @@ var cards=[].slice.call(document.querySelectorAll('.hc'));function f(){var v=q.v
                 ('E–F', 'Сомнительная польза', ['Рука Мидаса', 'Золотой клевер', 'Проклятый амулет', 'Устрашающий барабан'], 'большинство игроков их не берут.'),
                 ('Z', 'Вредные — не покупать', ['Ключ демонов', 'Мимик'], 'ухудшают игру (например, Ключ демонов добавляет здоровье сундукам).')]
         byn = {a['name']: a for a in AR}
+        ART_F = [('Жнец душ', 'p1.5'), ('Лампа призраков', 'p1.5'), ('Песок времени', 'p1.5'), ('Проклятый амулет', 'p1.5'),
+                 ('Катар', 'p2'), ('Изящный кинжал', 'k2p1.3'), ('Пространственный портал', 'p1.8'),
+                 ('Львиное сердце', 'c1'), ('Волшебная сумка', 'c1'), ('Кровавый топор', 'c1'), ('Кровавая секира', 'c1'),
+                 ('Кровавый катар', 'k10p2')] + [(n, 'p1') for n in ['Талисман силы', 'Рунный топор', 'Крепкая рука', 'Исказитель времени', 'Горшок золота', 'Амулет Мидаса',
+                 'Проклятая кукла', 'Кристалл времени', 'Кроличья лапка', 'Талисман - Дождь из стрел', 'Талисман - Зов войны', 'Талисман - Покушение',
+                 'Талисман - Первобытное бешенство', 'Кровавая кукла', 'Кровавая перчатка', 'Кровавый горшок']]
         tiers = ''
         for g, title, names, tip in TIER:
             items = ', '.join('<a href="#%s">%s</a>' % (slug(n), E(n)) if n in byn else E(n) for n in names)
@@ -475,7 +481,7 @@ var cards=[].slice.call(document.querySelectorAll('.hc'));function f(){var v=q.v
                 if a['sec'] == sec:
                     rows += '<tr id="%s"><td><b>%s</b></td><td>%s</td><td>%s</td><td>%s</td></tr>' % (slug(a['name']), E(a['name']), E(a['levels']), E(a['effect']), E(a['use'] if a['use'] not in ('.', '-') else ''))
         body = ('<p class="lead">Какие артефакты в «Крушителях подземелий» покупать первыми, а какие лучше не брать вовсе: тир-лист от S до Z и таблица всех %d артефактов — за души, за кровавые сердца и особых.</p>' % len(AR) +
-                '<div class="toc"><a href="#tier">Тир-лист</a><a href="#pravila">Как прокачивать</a><a href="#vse">Все артефакты</a></div>' +
+                '<div class="toc"><a href="#tier">Тир-лист</a><a href="#pravila">Как прокачивать</a><a href="#calc">Калькулятор прокачки</a><a href="#vse">Все артефакты</a></div>' +
                 '<h2 id="tier">Тир-лист артефактов</h2>' + tiers +
                 '<h2 id="pravila">Как прокачивать</h2><ul>'
                 '<li>Артефакты остаются у вас навсегда — даже после тёмного ритуала.</li>'
@@ -483,6 +489,11 @@ var cards=[].slice.call(document.querySelectorAll('.hc'));function f(){var v=q.v
                 '<li>В начале игры выгоднее качать по одному уровню: покупка пачкой ×25 и больше обходится на пару процентов дороже.</li>'
                 '<li>Не обновляйте магазин артефактов без нужды — каждое обновление поднимает цену следующей покупки.</li></ul>' +
                 cta('../../') +
+                '<h2 id="calc">Калькулятор прокачки артефакта</h2>'
+                '<p>Сколько душ (или кровавых сердец) нужно, чтобы поднять артефакт с одного уровня до другого. Игра считает цену каждого уровня по формуле артефакта от среднего между текущим и следующим уровнем и умножает на 1,02; итог по всем уровням округляется.</p>'
+                '<div class="calc" style="max-width:640px"><label>Артефакт: <select id="an">' + ''.join('<option value="%s">%s</option>' % (f, E(n)) for n, f in ART_F) + '</select></label>'
+                '<label>С уровня: <input id="a1" type="number" min="0" value="0" style="width:130px"></label><label>До уровня: <input id="a2" type="number" min="1" value="100" style="width:130px"></label>'
+                '<div class="out" id="ao"></div></div>' +
                 '<h2 id="vse">Все артефакты</h2><div class="tbl-wrap"><table class="st"><tr><th>Артефакт</th><th>Уровней</th><th>Эффект</th><th>Полезность</th></tr>' + rows + '</table></div>' +
                 '<p><a href="../">← Рецепты крафта</a> · <a href="../geroi/">Герои</a> · <a href="../osada/">Осада</a></p>')
         extra_css = '<style>.tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--card);margin:10px 0 18px}table.st{border-collapse:collapse;width:100%;font-size:14.5px;min-width:760px}table.st th,table.st td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}table.st th{color:var(--muted);font-size:13px}tr:target td{background:#fff7d6}</style>'
@@ -491,7 +502,14 @@ var cards=[].slice.call(document.querySelectorAll('.hc'));function f(){var v=q.v
             'Тир-лист артефактов «Крушителей подземелий»: что покупать первым (Жнец душ, Лампа призраков), что качать потом и какие артефакты не брать. Таблица всех %d артефактов.' % len(AR),
             URL + 'artefakty/', 'Артефакты: тир-лист и что качать первым',
             crumb([('Каталог', '../../'), ('Крушители подземелий', '../'), ('Артефакты', None)]), body,
-            [{'@context': 'https://schema.org', '@type': 'Article', 'headline': 'Артефакты в «Крушителях подземелий»: тир-лист', 'inLanguage': 'ru'}], extra=extra_css))
+            [{'@context': 'https://schema.org', '@type': 'Article', 'headline': 'Артефакты в «Крушителях подземелий»: тир-лист', 'inLanguage': 'ru'}], extra=extra_css + '''<script>(function(){
+var an=document.getElementById('an'),a1=document.getElementById('a1'),a2=document.getElementById('a2'),ao=document.getElementById('ao');
+function fmt(x){if(x<1e15)return Math.round(x).toLocaleString('ru');return x.toExponential(3).replace('e+',' × 10^');}
+function run(){var f=an.value,l1=Math.max(0,Math.floor(+a1.value||0)),l2=Math.max(0,Math.floor(+a2.value||0));if(l2<=l1){ao.textContent='«До уровня» должно быть больше «С уровня».';return;}
+var k=1,p=1,c=false,m;if(f[0]==='c'){c=true;}else{m=f.match(/k([\\d.]+)/);if(m)k=+m[1];m=f.match(/p([\\d.]+)/);if(m)p=+m[1];}
+var n=l2-l1,sum=0;if(c){sum=n;}else if(n<=3000000){for(var L=l1;L<l2;L++){sum+=k*Math.pow(L+0.5,p);}}else{sum=k*(Math.pow(l2,p+1)-Math.pow(l1,p+1))/(p+1);}
+sum*=1.02;ao.innerHTML='Нужно примерно <b>'+fmt(sum)+'</b> '+(/Кровав/.test(an.options[an.selectedIndex].text)?'кровавых сердец':'душ')+' на '+n.toLocaleString('ru')+' ур.';}
+[an,a1,a2].forEach(function(e){e.addEventListener('input',run);e.addEventListener('change',run);});run();})();</script>'''))
 
     # ---------- алтарь и тёмный ритуал (статья) ----------
     body = '''<p class="lead">Тёмный ритуал и алтарь — два механизма, на которых держится весь прогресс в «Крушителях подземелий». Ритуал перезапускает забег и даёт души, алтарь превращает лишних героев в осколки нужных. Разбираем, когда делать ритуал и кого жертвовать.</p>
