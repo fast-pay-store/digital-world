@@ -101,7 +101,16 @@ def siege(T, M):
                          'triple': '{{иконка|тройник' in block or 'Карта' in block})
     cannons = re.findall(r'!\s*style="text-align: center;"\s*\|([^\n]+)\n\|[^\n]*\n\|\s*style="text-align: center;"\s*\|([^\n]+)',
                          M.get('Осадные пушки', {}).get('text', ''))
-    return {'bosses': rows, 'cannons': [[a.strip(), b.strip().strip('"')] for a, b in cannons],
+    weeks = []
+    ht = re.sub(r'<!--.*?-->', '', T.get('Шаблон:Герои событий', {}).get('text', ''), flags=re.S)
+    for block in ht.split('|-')[1:]:
+        m = re.search(r'\|([^|\n<]+)<br>\s*([А-Яа-яё]+ неделя)', block)
+        if not m:
+            continue
+        names = re.findall(r'<div>\[\[([^\]|]+)', block)
+        rune = 'Рунная неделя' in block
+        weeks.append({'name': m.group(1).strip(), 'n': m.group(2).strip(), 'heroes': names[:4], 'rune': rune})
+    return {'weeks': weeks, 'bosses': rows, 'cannons': [[a.strip(), b.strip().strip('"')] for a, b in cannons],
             'updated': M.get('Осады', {}).get('ts', '')[:10]}
 
 

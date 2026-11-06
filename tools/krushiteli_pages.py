@@ -313,8 +313,17 @@ var q=new URLSearchParams(location.search).get('item');if(q){it.value=q;run();}
         rows = ''.join('<tr><td class="n">%s</td><td class="n">%s</td><td class="n">%s</td><td class="n">%s</td><td class="n">%s</td><td>%s</td></tr>' % (
             num(b['hp']), num(b['players']), num(b['total']), num(b['track']), num(b['mvp']), 'горн + тройник' if b['triple'] else 'горн') for b in S['bosses'])
         cn = ''.join('<tr><td>%s</td><td><b>%s</b></td></tr>' % (E(a), E(b)) for a, b in S['cannons'])
+        hset = {x['name'] for x in (D.get('heroes') or [])}
+        hl = lambda n: ('<a href="../geroi/%s/">%s</a>' % (slug(n), E(n))) if n in hset else E(n)
+        wk = ''.join('<tr><td>%s</td><td><b>%s</b></td><td>%s</td><td>%s</td><td>%s</td></tr>' % (
+            E(w['n']), E(w['name']),
+            ', '.join(hl(x) for x in w['heroes'][:2]) if w['heroes'] else ('Руны за убийство боссов' if w['rune'] else ''),
+            hl(w['heroes'][2]) if len(w['heroes']) > 2 else '', hl(w['heroes'][3]) if len(w['heroes']) > 3 else '') for w in S.get('weeks', []))
         body = '''<p class="lead">Осада — еженедельное событие «Крушителей подземелий»: игроки выслеживают боссов, бьют их вместе с кланом и получают очки осады, а за очки — рог демона, тройники, бутылки и осадных героев. Здесь — как устроена осада, расписание больших боссов, осадные пушки по неделям и таблица очков за каждого босса.</p>
-<div class="toc"><a href="#kak">Как устроена</a><a href="#vremya">Время больших боссов</a><a href="#pushki">Пушки по неделям</a><a href="#ochki">Очки за боссов</a><a href="#sovety">Советы</a></div>
+<div class="toc"><a href="#nedeli">Недели осады</a><a href="#kak">Как устроена</a><a href="#vremya">Время больших боссов</a><a href="#pushki">Пушки по неделям</a><a href="#ochki">Очки за боссов</a><a href="#sovety">Советы</a></div>
+<h2 id="nedeli">Недели осады по порядку</h2>
+<p>Осады идут по кругу из 9 недель. У каждой недели свои боссы и свои осадные герои: двое — главная награда за рейтинг, ещё по одному элитному герою дают за 230 млн и 4 млн очков. Девятая неделя «Чёрный король» — <b>рунная</b>: вместо героев за боссов дают руны (подробнее — в <a href="../runy-gayd/">гайде по рунам</a>).</p>
+<div class="tbl-wrap"><table class="st"><tr><th>Неделя</th><th>Осада</th><th>Главная награда</th><th>Элита за 230 млн</th><th>Элита за 4 млн</th></tr>{WK}</table></div>
 <h2 id="kak">Как устроена осада</h2>
 <ul>
 <li>На каждый бой собирается колода: <b>6 основных героев</b> и <b>4 запасных</b>, которые выходят на место погибших.</li>
@@ -339,12 +348,12 @@ var q=new URLSearchParams(location.search).get('item');if(q){it.value=q;run();}
 <li>Приглашайте клан на крупных боссов — одному не успеть за 30 минут, а 60% очков делятся на всех участников.</li>
 <li>Копите рога демона к неделе, пушка которой у вас есть: с ней клановый босс умирает намного быстрее.</li>
 <li>Следите за рангами: если перестали попадаться удобные боссы — загляните на алтарь.</li>
-</ul>'''.replace('{CN}', cn).replace('{ROWS}', rows)
+</ul>'''.replace('{CN}', cn).replace('{ROWS}', rows).replace('{WK}', wk)
         body += cta('../../') + '<p><a href="../">← Рецепты крафта и поиск</a></p>'
         extra_css = '<style>.tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--card);margin:10px 0 18px}table.st{border-collapse:collapse;width:100%%;font-size:15px}table.st th,table.st td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left}table.st th{background:var(--bg);font-size:13px;color:var(--muted)}table.st td.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}</style>'
         write('%s/osada/index.html' % OUT, page(
-            'Осада в «Крушителях подземелий»: боссы, очки, пушки по неделям',
-            'Гид по осаде «Крушителей подземелий»: как делятся очки осады, время больших боссов, осадные пушки по неделям и таблица очков за каждого босса.',
+            'Осада в «Крушителях подземелий»: недели по порядку, герои, пушки, боссы',
+            'Гид по осаде «Крушителей подземелий»: 9 недель осады по порядку, осадные герои каждой недели, рунная неделя, пушки, время больших боссов и очки за каждого босса.',
             URL + 'osada/', 'Осада в «Крушителях подземелий»',
             crumb([('Каталог', '../../'), ('Крушители подземелий', '../'), ('Осада', None)]), body,
             [{'@context': 'https://schema.org', '@type': 'Article', 'headline': 'Осада в «Крушителях подземелий»', 'inLanguage': 'ru',
