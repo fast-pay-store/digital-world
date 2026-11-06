@@ -105,13 +105,73 @@ def siege(T, M):
             'updated': M.get('Осады', {}).get('ts', '')[:10]}
 
 
+WEEKS = {'дроу': 'Королевство дроу', 'пещеры': 'Пещеры гоблинов', 'логово': 'Логово некроманта', 'пустош': 'Ледяная пустошь',
+         'джунгли': 'Шаманы джунглей', 'грин': 'Фиддлерс Грин', 'пойма': 'Зловещая пойма', 'пески': 'Пески времени', 'король': 'Чёрный король'}
+ELITE = ['дроу', 'пещеры', 'логово', 'пустош', 'джунгли', 'грин', 'пойма', 'пески', 'король']
+
+
+def strip(x):
+    x = re.sub(r'<!--.*?-->', '', x, flags=re.S)
+    x = re.sub(r'\{\{\s*Гл пар\s*\|([^}]*)\}\}', r'\1', x)
+    x = re.sub(r'\[\[(?:[^\]|]*\|)?([^\]]*)\]\]', r'\1', x)
+    x = re.sub(r'\{\{[^{}]*\}\}', '', x)
+    x = re.sub(r'<br\s*/?>', ' ', x)
+    x = re.sub(r'<[^>]+>', '', x)
+    return re.sub(r'\s+', ' ', x).strip()
+
+
+def field(t, name):
+    m = re.search(r'\|\s*' + re.escape(name) + r'\s*=([^\n]*)', t)
+    return strip(m.group(1)) if m else ''
+
+
+def heroes(M):
+    out = []
+    for title, v in M.items():
+        t = v['text']
+        if 'Infobox_Hero' not in t and 'Infobox Hero' not in t:
+            continue
+        if 'Список всех героев' not in t and 'Категория:Герои' not in t:
+            continue
+        sk = []
+        for i in range(1, 5):
+            f = field(t, 'способность%d' % i)
+            if f:
+                parts = f.split('/', 3)
+                if len(parts) == 4:
+                    sk.append({'type': parts[1], 'chance': parts[2], 'text': parts[3]})
+                elif f:
+                    sk.append({'type': '', 'chance': '', 'text': f})
+        bonus = field(t, 'бонус осады')
+        bw = ''
+        m = re.match(r'(?:элита(\d)_|([а-я]+))(\d+)', bonus)
+        if m:
+            key = ELITE[int(m.group(1)) - 1] if m.group(1) else m.group(2)
+            bw = '%s +%s%%' % (WEEKS.get(key, key), m.group(3))
+        how = re.search(r'\|\s*Информация\s*=([^\n]*)', t)
+        cats = re.findall(r'\[\[Категория:([^\]|]+)', t)
+        def stat(n):
+            m = re.search(r'\|\s*' + n + r'\s*=([^\n]*)', t)
+            d = re.search(r'\d[\d\s]*', re.sub(r'<!--.*?-->', '', m.group(1))) if m else None
+            return re.sub(r'\s', '', d.group(0)) if d else ''
+        RAR = [('бож', 'Божественный'), ('миф', 'Мифический'), ('лег', 'Легендарный'), ('эпи', 'Эпический'),
+               ('редч', 'Редчайший'), ('редк', 'Редкий'), ('необ', 'Необычный'), ('обыч', 'Обычный')]
+        r0 = field(t, 'начальная редкость').lower()
+        rar = next((v for k, v in RAR if r0.startswith(k)), '')
+        out.append({'name': title, 'race': field(t, 'раса'), 'cls': field(t, 'класс'), 'rar': rar,
+                    'feat': field(t, 'особенность'), 'hp': stat('HP'), 'atk': stat('ATK'), 'def': stat('DEF'), 'wis': stat('WIS'),
+                    'agi': stat('AGI'), 'sum': stat('SUM'), 'skills': sk, 'dislike': field(t, 'неприязнь'), 'siege': bw,
+                    'how': strip(how.group(1)) if how else '', 'cats': [c.strip() for c in cats], 'd': v['ts'][:10]})
+    return sorted(out, key=lambda h: h['name'])
+
+
 def main():
     T = contents(allpages(10))
-    M = contents(['Осады', 'Осадные пушки'])
+    M = contents(allpages(0))
     R = parse(T)
     os.makedirs(os.path.join(ROOT, 'krushiteli'), exist_ok=True)
     json.dump({'source': 'https://dungeoncrusher.fandom.com/ru/wiki/Рецепты', 'license': 'CC BY-SA 3.0',
-               'fetched': time.strftime('%Y-%m-%d'), 'recipes': R, 'siege': siege(T, M)},
+               'fetched': time.strftime('%Y-%m-%d'), 'recipes': R, 'siege': siege(T, M), 'heroes': heroes(M)},
               open(os.path.join(ROOT, 'krushiteli', 'data.json'), 'w', encoding='utf-8'), ensure_ascii=False, indent=0)
     print('Рецептов:', len(R))
 
