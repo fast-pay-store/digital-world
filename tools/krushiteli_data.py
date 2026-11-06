@@ -85,12 +85,33 @@ def parse(T):
     return out
 
 
+def clean(x):
+    x = re.sub(r'<nowiki>|</nowiki>|\{\{[^}]*\}\}|\[\[[^\]]*\]\]', '', x)
+    return re.sub(r'\s+', ' ', x).strip(' |')
+
+
+def siege(T, M):
+    t = T.get('Шаблон:Боссы осады', {}).get('text', '')
+    rows = []
+    for block in t.split('|-')[1:]:
+        cells = [clean(c) for c in re.split(r'\n[!|]', '\n' + block.strip()) if c.strip()]
+        cells = [c.split('|')[-1].strip() for c in cells]
+        if len(cells) >= 5 and re.match(r'[\d.,]+$', cells[0]):
+            rows.append({'hp': cells[0], 'players': cells[1], 'total': cells[2], 'track': cells[3], 'mvp': cells[4],
+                         'triple': '{{иконка|тройник' in block or 'Карта' in block})
+    cannons = re.findall(r'!\s*style="text-align: center;"\s*\|([^\n]+)\n\|[^\n]*\n\|\s*style="text-align: center;"\s*\|([^\n]+)',
+                         M.get('Осадные пушки', {}).get('text', ''))
+    return {'bosses': rows, 'cannons': [[a.strip(), b.strip().strip('"')] for a, b in cannons],
+            'updated': M.get('Осады', {}).get('ts', '')[:10]}
+
+
 def main():
     T = contents(allpages(10))
+    M = contents(['Осады', 'Осадные пушки'])
     R = parse(T)
     os.makedirs(os.path.join(ROOT, 'krushiteli'), exist_ok=True)
     json.dump({'source': 'https://dungeoncrusher.fandom.com/ru/wiki/Рецепты', 'license': 'CC BY-SA 3.0',
-               'fetched': time.strftime('%Y-%m-%d'), 'recipes': R},
+               'fetched': time.strftime('%Y-%m-%d'), 'recipes': R, 'siege': siege(T, M)},
               open(os.path.join(ROOT, 'krushiteli', 'data.json'), 'w', encoding='utf-8'), ensure_ascii=False, indent=0)
     print('Рецептов:', len(R))
 
