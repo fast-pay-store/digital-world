@@ -11,6 +11,7 @@
     "shoptitans-bot",
     "tiles-survive-bot",
     "tiles-survive-kody",
+    "roblox-kody",
     "trofei-rybalka2",
     "raid-shadow-legends-bot",
     "pixel-starships-bot",
@@ -136,6 +137,7 @@
   "deep": [
     "shoptitans-spravochnik",
     "krushiteli-podzemeliy",
-    "krushiteli-podzemeliy/geroi"
+    "krushiteli-podzemeliy/geroi",
+    "roblox-kody"
   ]
 }
