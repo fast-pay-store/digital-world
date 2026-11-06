@@ -165,13 +165,34 @@ def heroes(M):
     return sorted(out, key=lambda h: h['name'])
 
 
+def artifacts(M):
+    t = re.sub(r'<!--.*?-->', '', M.get('Артефакты', {}).get('text', ''), flags=re.S)
+    secs = re.split(r'\n==([^=\n]+)==\n', t)
+    out = []
+    for i in range(1, len(secs), 2):
+        sec = re.sub(r'\{\{[^}]*\}\}', '', secs[i]).strip()
+        if 'Стоимость' in sec:
+            continue
+        for tbl in re.findall(r'\{\|(.*?)\n\|\}', secs[i + 1], re.S):
+            for r in tbl.split('\n|-')[1:]:
+                cells = [c.strip() for c in re.split(r'\n\s*\|', '\n' + r.strip()) if c.strip() != '']
+                if not cells or cells[0].startswith('!'):
+                    continue
+                cells = [strip(re.sub(r'\[\[(?:Файл|File):[^\]]*\]\]', '', re.sub(r'^style="[^"]*"\s*\|', '', c))) for c in cells]
+                cells = [c for c in cells if c != '']
+                if len(cells) >= 5:
+                    out.append({'sec': sec, 'name': cells[0], 'type': cells[1], 'levels': cells[2],
+                                'effect': cells[-2], 'use': cells[-1]})
+    return out
+
+
 def main():
     T = contents(allpages(10))
     M = contents(allpages(0))
     R = parse(T)
     os.makedirs(os.path.join(ROOT, 'krushiteli'), exist_ok=True)
     json.dump({'source': 'https://dungeoncrusher.fandom.com/ru/wiki/Рецепты', 'license': 'CC BY-SA 3.0',
-               'fetched': time.strftime('%Y-%m-%d'), 'recipes': R, 'siege': siege(T, M), 'heroes': heroes(M)},
+               'fetched': time.strftime('%Y-%m-%d'), 'recipes': R, 'siege': siege(T, M), 'heroes': heroes(M), 'artifacts': artifacts(M)},
               open(os.path.join(ROOT, 'krushiteli', 'data.json'), 'w', encoding='utf-8'), ensure_ascii=False, indent=0)
     print('Рецептов:', len(R))
 
