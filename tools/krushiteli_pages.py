@@ -1,0 +1,343 @@
+"""Собирает гид по крафту «Крушителей подземелий» из krushiteli/data.json (его скачивает tools/krushiteli_data.py):
+  krushiteli-podzemeliy/index.html                — главная гида: поиск по рецептам, разделы, правила катализаторов
+  krushiteli-podzemeliy/<раздел>/index.html       — рецепты раздела (оружие, броня, руны…)
+  krushiteli-podzemeliy/kalkulyator-krafta/       — калькулятор катализаторов и ресурсов
+Данные — вики сообщества (CC BY-SA 3.0), ссылка на источник стоит на каждой странице.
+"""
+import html, json, math, os, re
+from collections import defaultdict, OrderedDict
+
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+os.chdir(ROOT)
+OUT = 'krushiteli-podzemeliy'
+BASE = 'https://fast-pay-store.github.io/digital-world/'
+URL = BASE + OUT + '/'
+BOT = 'bot-dungeon-crusher/'
+WIKI = 'https://dungeoncrusher.fandom.com/ru/wiki/'
+E = lambda s: html.escape(str(s), quote=True)
+TR = dict(zip('абвгдеёжзийклмнопрстуфхцчшщъыьэюя', ['a', 'b', 'v', 'g', 'd', 'e', 'e', 'zh', 'z', 'i', 'y', 'k', 'l', 'm', 'n', 'o', 'p', 'r',
+                                                 's', 't', 'u', 'f', 'h', 'ts', 'ch', 'sh', 'sch', '', 'y', '', 'e', 'yu', 'ya']))
+ICON = ('<link rel="icon" href="%sassets/favicon.svg" type="image/svg+xml">\n<link rel="icon" href="%sassets/favicon-120.png" sizes="120x120" type="image/png">\n'
+        '<link rel="apple-touch-icon" href="%sassets/apple-touch-icon.png">' % (BASE, BASE, BASE))
+
+
+def slug(s):
+    return re.sub(r'[^a-z0-9]+', '-', ''.join(TR.get(c, c) for c in s.lower())).strip('-')
+
+
+def base_name(r):
+    return re.sub(r'\s*\(\d+\s*уровень\)', '', r).strip()
+
+
+WEAPON = ['Меч', 'Кинжал', 'Лук', 'Арбалет', 'Топор', 'Копье', 'Молот', 'Моргенштерн', 'Посох света', 'Посох тьмы', 'Книга', 'Кулак',
+          'Драконье оружие', 'Лазерный пистолет', 'Плазменное ружье', 'Ружье', 'Гравитационная граната', 'Патроны', 'Стрелы']
+ARMOR = ['Шлем', 'Доспехи', 'Ботинки', 'Шлем мага', 'Одеяние мага', 'Ботинки мага', 'Ботинки вора', 'Броня вора', 'Шлем вора',
+         'Ботинки дракона', 'Броня дракона', 'Шлем дракона', 'Штурмовая броня']
+ACC = ['Кольцо', 'Ожерелье', 'Золотая подкова', 'Адамантиновая подкова', 'Горн', 'Гьяллархорн']
+ESS = ['Эссенция удачи', 'Магические бутылки', 'Зелье смешивания', 'Контрафактная вода', 'Жидкое золото', 'Жидкое Золото', 'Кровь Героев',
+       'Замороженная частица магии', 'Трольское Можо', 'Очки гилдования']
+UNITS = ['Воины', 'Лучники', 'Арбалетчики', 'Волшебники', 'Колдуны', 'Гоблины-берсеркеры', 'Гоблины-снайперы', 'Гоблины-колдуны']
+
+CATS = OrderedDict([
+    ('oruzhie', ('Оружие', 'Рецепты оружия: мечи, кинжалы, луки, арбалеты, топоры, посохи, книги и космическое оружие по уровням.')),
+    ('bronya', ('Броня', 'Рецепты брони: шлемы, доспехи, ботинки, одеяния мага, броня вора и дракона по уровням.')),
+    ('ukrasheniya', ('Кольца, ожерелья и подковы', 'Рецепты колец, ожерелий, подков и горнов.')),
+    ('mificheskie', ('Мифические предметы', 'Рецепты мифического снаряжения: мифические мечи, луки, шлемы, доспехи, ботинки, кольца и ожерелья.')),
+    ('runy', ('Руны', 'Рецепты рун: руны атаки, защиты, жизни, ловкости, мудрости и охотника — от небольшой до великой.')),
+    ('oskolki', ('Осколки героев', 'Как скрафтить осколки героев: рецепты осколков для обычных, осадных и событийных героев.')),
+    ('materialy', ('Слитки и материалы', 'Рецепты слитков (железный, золотой, мифрильный, адамантиновый), сфер, камней, наковальни и свитков крафта.')),
+    ('esencii', ('Эссенции удачи и зелья', 'Рецепты эссенций удачи, магических бутылок, зелья смешивания и других катализаторов.')),
+    ('osobye', ('Особые предметы', 'Рецепты особых предметов: Дар Циндора, Дверь в Никуда, Руническая бомба, Скотобойня, Тайна Бесконечности, случайные предметы.')),
+    ('otryady', ('Отряды', 'Рецепты отрядов: воины, лучники, арбалетчики, волшебники, колдуны и гоблины.')),
+])
+
+
+def cat_of(r):
+    b = base_name(r)
+    if b.startswith('Осколки героя') or b in ('Осколки', 'Осколок'):
+        return 'oskolki'
+    if b.startswith('Мифическ'):
+        return 'mificheskie'
+    if 'руна' in b.lower():
+        return 'runy'
+    if b in WEAPON:
+        return 'oruzhie'
+    if b in ARMOR:
+        return 'bronya'
+    if b in ACC:
+        return 'ukrasheniya'
+    if b.startswith('Эссенция') or b in ESS:
+        return 'esencii'
+    if b in UNITS:
+        return 'otryady'
+    if re.search(r'слиток|Сфера|камень|Камень|Наковальня|Свиток|страница|Гиперсфера|Пыль', b):
+        return 'materialy'
+    return 'osobye'
+
+
+def need(c):
+    """Сколько катализатора нужно до максимума: (эссенций, бутылок, потолок)."""
+    if c is None:
+        return None
+    cap = 100 if c >= 95 else 99
+    if c >= cap:
+        return (0, 0, cap)
+    return (math.ceil((cap - c) / 2.5 - 1e-9), math.ceil((cap - c) / 1.5 - 1e-9), cap)
+
+
+CSS = '''<style>
+.find{width:100%;max-width:620px;padding:12px 14px;font-size:17px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink)}
+#res{margin-top:10px;display:grid;gap:6px}
+#res a{display:block;padding:8px 12px;border:1px solid var(--line);border-radius:8px;background:var(--card);text-decoration:none;color:var(--ink)}
+#res a small{color:var(--muted)}
+.types{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px;margin:12px 0 22px}
+.types a{display:block;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:var(--card);text-decoration:none;color:var(--ink);font-weight:600}
+.types a:hover{border-color:var(--accent)}
+.types small{display:block;color:var(--muted);font-weight:400}
+.rc{border:1px solid var(--line);border-radius:12px;background:var(--card);padding:14px 16px;margin:10px 0;scroll-margin-top:16px}
+.rc:target{border-color:var(--accent);box-shadow:0 0 0 3px rgba(37,99,235,.15)}
+.rc h3{margin:0 0 6px;font-size:18px}
+.rc .meta{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:14px;color:var(--muted);margin-bottom:8px}
+.rc .meta b{color:var(--ink)}
+.rc ul{margin:0;padding-left:18px;columns:2;column-gap:28px}
+.rc li{break-inside:avoid;margin:2px 0}
+.rc .use{font-size:14px;color:var(--muted);margin-top:8px}
+.q{font-variant-numeric:tabular-nums;font-weight:700}
+.r-обычный{color:inherit}.r-необычный{color:#15803d}.r-редкий{color:#2563eb}.r-эпический{color:#7c3aed}.r-легендарный{color:#c2410c}.r-мифический{color:#b91c1c}
+.cta{display:flex;flex-wrap:wrap;gap:12px;align-items:center;background:var(--card);border:1px solid var(--line);border-left:4px solid var(--accent2);border-radius:12px;padding:16px 18px;margin:22px 0}
+.cta p{margin:0;flex:1;min-width:240px}
+.calc{display:grid;gap:12px;max-width:640px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+.calc label{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.calc input,.calc select{padding:9px 10px;font-size:16px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink)}
+.calc .out{font-size:17px;line-height:1.6}
+.toc{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 18px}
+.toc a{padding:4px 10px;border:1px solid var(--line);border-radius:999px;text-decoration:none;font-size:14px;color:var(--ink);background:var(--card)}
+@media(max-width:600px){.rc ul{columns:1}}
+</style>'''
+
+
+def page(title, desc, url, h1, crumbs, body, ld, extra=''):
+    depth = url.replace(BASE, '').count('/')
+    home = '../' * depth
+    return '''<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{t}</title>
+<meta name="description" content="{d}">
+<link rel="canonical" href="{u}">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Digital World">
+<meta property="og:title" content="{t}">
+<meta property="og:description" content="{d}">
+<meta property="og:url" content="{u}">
+<meta property="og:locale" content="ru_RU">
+<link rel="stylesheet" href="{home}assets/site.css">
+{icon}
+<script type="application/ld+json">{ld}</script>
+<!-- Файл создаётся автоматически (tools/krushiteli_pages.py) из krushiteli/data.json. Руками не править. -->
+{css}
+</head>
+<body>
+<header class="top"><div class="wrap"><a href="{home}">Digital World</a><span class="sp"></span><a class="all" href="{home}{OUT}/">Гид по «Крушителям»</a></div></header>
+<main><div class="wrap">
+<nav class="crumbs" aria-label="Навигация"><ol>{crumbs}</ol></nav>
+<h1 style="font-size:clamp(28px,4vw,40px);line-height:1.15;margin:14px 0 10px">{h1}</h1>
+{body}
+</div></main>
+<footer class="f"><div class="wrap">
+<div class="row"><span>Нашли ошибку или новый рецепт?</span><a href="https://vk.com/topic-215704478_53215845" target="_blank" rel="noopener">Напишите во ВКонтакте</a><a href="https://t.me/konctantin777" target="_blank" rel="noopener">Telegram</a></div>
+<div class="disclaimer">Неофициальный гид. Рецепты — по данным <a href="{wiki}Рецепты" target="_blank" rel="noopener">вики сообщества «Крушители Подземелий»</a> (лицензия <a href="https://creativecommons.org/licenses/by-sa/3.0/deed.ru" target="_blank" rel="noopener">CC BY-SA 3.0</a>); таблицы этого гида распространяются на тех же условиях. Рецепты открыты игроками и могут меняться разработчиком — проверяйте в игре. «Крушители Подземелий» / Dungeon Crusher — товарный знак правообладателей игры.</div>
+</div></footer>
+{extra}
+</body>
+</html>
+'''.format(t=E(title), d=E(desc), u=E(url), h1=E(h1), body=body, ld=json.dumps(ld, ensure_ascii=False), icon=ICON, css=CSS,
+           crumbs=''.join(crumbs), home=home, OUT=OUT, wiki=WIKI, extra=extra)
+
+
+def cta(prefix):
+    return ('<div class="cta"><p><b>Надоело часами крафтить и фармить?</b> Бот для «Крушителей подземелий» сам ведёт бои, собирает награды '
+            'и выполняет ежедневные задания 24/7 — на ПК и в браузере. Демо-версия бесплатно.</p>'
+            '<a class="btn" href="%s">Бот для Крушителей</a></div>' % (prefix + BOT))
+
+
+def crumb(items):
+    out = []
+    for i, (t, h) in enumerate(items):
+        out.append('<li aria-current="page">%s</li>' % E(t) if h is None else '<li><a href="%s">%s</a></li>' % (h, E(t)))
+    return out
+
+
+def write(path, s):
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    open(path, 'w', encoding='utf-8').write(s)
+
+
+def main():
+    D = json.load(open('krushiteli/data.json', encoding='utf-8'))
+    R = D['recipes']
+    seen = defaultdict(int)
+    for r in R:
+        seen[r['r']] += 1
+    k = defaultdict(int)
+    for i, r in enumerate(R):
+        k[r['r']] += 1
+        r['v'] = k[r['r']] if seen[r['r']] > 1 else 0
+        r['cat'] = cat_of(r['r'])
+        r['id'] = slug(r['r']) + ('-%d' % i if sum(1 for x in R if x['r'] == r['r']) > 1 else '')
+    by_res = defaultdict(list)
+    for r in R:
+        by_res[r['r']].append(r)
+    used = defaultdict(list)
+    for r in R:
+        for name, n, _ in r['i']:
+            used[name].append(r)
+
+    def link_item(name, prefix):
+        rs = by_res.get(name)
+        if rs:
+            r = rs[0]
+            return '<a href="%s%s/#%s">%s</a>' % (prefix, r['cat'], r['id'], E(name))
+        return E(name)
+
+    def card(r, prefix):
+        nd = need(r['c'])
+        meta = []
+        if r['c'] is not None:
+            meta.append('Базовый шанс: <b>%d%%</b>' % r['c'])
+        if nd and (nd[0] or nd[1]):
+            meta.append('До %d%%: <b>%d</b> эссенций удачи или <b>%d</b> магических бутылок' % (nd[2], nd[0], nd[1]))
+        elif nd:
+            meta.append('Катализатор не нужен')
+        lis = ''.join('<li><span class="q">×%d</span> <span class="r-%s">%s</span></li>' % (n, E(rar), link_item(name, prefix)) for name, n, rar in r['i'])
+        u = used.get(r['r'], [])
+        us = ''
+        if u:
+            names = list(OrderedDict.fromkeys(x['r'] for x in u))
+            us = '<div class="use">Нужен для: ' + ', '.join(link_item(x, prefix) for x in names[:12]) + ('…' if len(names) > 12 else '') + '</div>'
+        return '<div class="rc" id="%s"><h3>%s%s</h3><div class="meta">%s</div><ul>%s</ul>%s</div>' % (r['id'], E(r['r']), (' <small style="color:var(--muted);font-weight:400">— вариант %d</small>' % r['v']) if r['v'] else '', ' · '.join(meta), lis, us)
+
+    total = len(R)
+    # ---------- страницы разделов ----------
+    counts = {}
+    for cid, (cname, cdesc) in CATS.items():
+        rs = [r for r in R if r['cat'] == cid]
+        counts[cid] = len(rs)
+        if not rs:
+            continue
+        groups = OrderedDict()
+        for r in sorted(rs, key=lambda r: (base_name(r['r']), r['r'])):
+            groups.setdefault(base_name(r['r']), []).append(r)
+        toc = '<div class="toc">' + ''.join('<a href="#g-%s">%s</a>' % (slug(g), E(g)) for g in groups) + '</div>'
+        secs = ''.join('<h2 id="g-%s" style="margin-top:28px">%s — рецепт%s</h2>%s' % (
+            slug(g), E(g), 'ы по уровням' if len(v) > 1 else '', ''.join(card(r, '../') for r in v)) for g, v in groups.items())
+        title = '%s — рецепты крафта «Крушители подземелий»' % cname
+        desc = '%s Ингредиенты, базовый шанс и сколько эссенций удачи нужно до 99%%. %d рецептов.' % (cdesc, len(rs))
+        body = ('<p class="lead">%s Для каждого рецепта — ингредиенты, базовый шанс и сколько катализатора нужно до максимума. '
+                'Нажмите на ингредиент, чтобы увидеть, как его скрафтить.</p>' % E(cdesc)) + toc + cta('../../') + secs + \
+               '<p style="margin-top:26px"><a href="../">← Все разделы и поиск по рецептам</a> · <a href="../kalkulyator-krafta/">Калькулятор крафта</a></p>'
+        ld = [{'@context': 'https://schema.org', '@type': 'BreadcrumbList', 'itemListElement': [
+            {'@type': 'ListItem', 'position': 1, 'name': 'Digital World', 'item': BASE},
+            {'@type': 'ListItem', 'position': 2, 'name': 'Гид по «Крушителям подземелий»', 'item': URL},
+            {'@type': 'ListItem', 'position': 3, 'name': cname, 'item': URL + cid + '/'}]}]
+        write('%s/%s/index.html' % (OUT, cid), page(title, desc, URL + cid + '/', '%s: рецепты крафта' % cname,
+              crumb([('Каталог', '../../'), ('Крушители подземелий', '../'), (cname, None)]), body, ld))
+
+    # ---------- данные для поиска и калькулятора ----------
+    js_data = [[r['r'], r['cat'], r['id'], r['c'], [[a, b] for a, b, _ in r['i']], r['v']] for r in R]
+    data_js = 'window.DC=' + json.dumps(js_data, ensure_ascii=False, separators=(',', ':')) + ';'
+    write('%s/data.js' % OUT, data_js)
+
+    # ---------- калькулятор ----------
+    calc_body = '''<p class="lead">Считает, сколько эссенций удачи или магических бутылок положить в крафт, чтобы шанс был максимальным, и сколько ингредиентов уйдёт на нужное количество предметов.</p>
+<h2>Сколько катализатора нужно</h2>
+<div class="calc">
+<label>Базовый шанс рецепта, %: <input id="bc" type="number" min="1" max="100" value="80" style="width:90px"></label>
+<div class="out" id="bo"></div>
+</div>
+<h2 style="margin-top:28px">Сколько ресурсов на крафт</h2>
+<div class="calc">
+<label>Что крафтим: <input id="it" list="items" class="find" style="max-width:420px;font-size:16px" placeholder="например, Шлем (5 уровень)"></label>
+<datalist id="items"></datalist>
+<label>Сколько штук: <input id="cnt" type="number" min="1" value="1" style="width:90px"></label>
+<div class="out" id="ro">Выберите предмет.</div>
+</div>
+<h2 style="margin-top:28px">Правила катализаторов</h2>
+<ul>
+<li>Одна эссенция удачи повышает шанс на 2,5%, одна магическая бутылка — на 1,5%.</li>
+<li>В один крафт можно положить только один вид катализатора — до 100 штук.</li>
+<li>Рецепты с базовым шансом меньше 95% поднимаются максимум до 99%, с базовым 95% и выше — до 100%.</li>
+<li>Выгоднее крафтить пачкой и класть катализатор на всю пачку, чем по одной штуке.</li>
+</ul>
+<p>Калькулятор не учитывает, что крафт может не удаться: при шансе 99% примерно один крафт из ста сгорает. Ингредиенты со ссылкой тоже крафтятся — откройте их рецепт.</p>''' + cta('../../') + \
+        '<p><a href="../">← Все рецепты и поиск</a></p>'
+    calc_js = '''<script src="../data.js"></script>
+<script>
+(function(){
+var bc=document.getElementById('bc'),bo=document.getElementById('bo');
+function cat(){var c=Math.max(1,Math.min(100,+bc.value||0));var cap=c>=95?100:99;
+if(c>=cap){bo.innerHTML='Шанс уже максимальный ('+cap+'%), катализатор не нужен.';return;}
+var e=Math.ceil((cap-c)/2.5-1e-9),b=Math.ceil((cap-c)/1.5-1e-9);
+bo.innerHTML='До <b>'+cap+'%</b>: <b>'+e+'</b> эссенций удачи <i>или</i> <b>'+b+'</b> магических бутылок.';}
+bc.oninput=cat;cat();
+var by={};DC.forEach(function(r){by[r[0]]=r;});
+var dl=document.getElementById('items');Object.keys(by).sort().forEach(function(k){var o=document.createElement('option');o.value=k;dl.appendChild(o);});
+var it=document.getElementById('it'),cnt=document.getElementById('cnt'),ro=document.getElementById('ro');
+var craft={};DC.forEach(function(r){craft[r[0]]=r;});
+function run(){var name=it.value.trim(),vs=DC.filter(function(r){return r[0]===name});if(!vs.length){ro.textContent='Выберите предмет из списка.';return;}
+var n=Math.max(1,+cnt.value||1);
+ro.innerHTML=vs.map(function(r,k){var c=r[3],cap=c>=95?100:99,e=c==null?null:Math.max(0,Math.ceil((cap-c)/2.5-1e-9));
+return (vs.length>1?'<b>Вариант '+(k+1)+'</b><br>':'')+'<ul>'+r[4].map(function(i){var x=craft[i[0]];
+return '<li><b>'+(i[1]*n).toLocaleString('ru')+'</b> × '+(x?'<a href="../'+x[1]+'/#'+x[2]+'">'+i[0]+'</a>':i[0])+'</li>'}).join('')+'</ul>'+
+(c!=null?'Шанс '+c+'%'+(e?' → до '+cap+'%: <b>'+e+'</b> эссенций удачи на крафт':'')+'. ':'')+'<a href="../'+r[1]+'/#'+r[2]+'">Открыть рецепт</a>';}).join('<hr>');}
+[it,cnt].forEach(function(e){e.addEventListener('input',run);e.addEventListener('change',run);});
+var q=new URLSearchParams(location.search).get('item');if(q){it.value=q;run();}
+})();
+</script>'''
+    write('%s/kalkulyator-krafta/index.html' % OUT, page(
+        'Калькулятор крафта «Крушители подземелий» — эссенции удачи и ресурсы',
+        'Калькулятор крафта для «Крушителей подземелий»: сколько эссенций удачи и магических бутылок нужно до 99%, и сколько базовых ресурсов уйдёт на нужное число предметов.',
+        URL + 'kalkulyator-krafta/', 'Калькулятор крафта «Крушители подземелий»',
+        crumb([('Каталог', '../../'), ('Крушители подземелий', '../'), ('Калькулятор крафта', None)]), calc_body,
+        [{'@context': 'https://schema.org', '@type': 'WebApplication', 'name': 'Калькулятор крафта «Крушители подземелий»',
+          'applicationCategory': 'GameApplication', 'operatingSystem': 'Браузер', 'offers': {'@type': 'Offer', 'price': '0', 'priceCurrency': 'RUB'}}],
+        extra=calc_js))
+
+    # ---------- главная гида ----------
+    tiles = ''.join('<a href="%s/">%s<small>%d рецептов</small></a>' % (cid, E(c[0]), counts[cid]) for cid, c in CATS.items() if counts.get(cid))
+    tiles += '<a href="kalkulyator-krafta/">Калькулятор крафта<small>катализаторы и ресурсы</small></a>'
+    body = ('<p class="lead">Все известные рецепты крафта «Крушителей подземелий» (Dungeon Crusher) на одной странице: %d рецептов оружия, брони, '
+            'мифических предметов, рун, осколков героев и материалов. Ищите по названию предмета или ингредиента — например, «шлем», «руна атаки» или «золотой слиток».</p>' % total) + \
+        '<input class="find" id="q" type="search" placeholder="Поиск: предмет или ингредиент" autocomplete="off"><div id="res"></div>' + \
+        '<h2 style="margin-top:26px">Разделы</h2><div class="types">' + tiles + '</div>' + cta('../') + \
+        '''<h2>Как работает крафт</h2>
+<p>Крафт в «Крушителях подземелий» — это смешивание ингредиентов по рецепту. У каждого рецепта есть базовый шанс успеха; его поднимают катализаторами — эссенциями удачи (+2,5% за штуку) и магическими бутылками (+1,5%). Одновременно можно положить только один вид катализатора, до 100 штук. Шанс ниже 95% поднимается максимум до 99%, а 95% и выше — до 100%.</p>
+<p>Рецепты в игре никто не объявляет: их открывают сами игроки методом проб и ошибок. Если нужного предмета здесь нет — скорее всего, его рецепт ещё не нашли. Нашли рецепт или ошибку — напишите нам, добавим.</p>
+<h2>Частые вопросы</h2>
+<p><b>Сколько эссенций удачи класть в крафт?</b> Столько, чтобы дойти до 99%: (99 − базовый шанс) ÷ 2,5, с округлением вверх. Для шанса 80% — 8 эссенций, для 60% — 16. Проще — в <a href="kalkulyator-krafta/">калькуляторе</a>.</p>
+<p><b>Как сделать эссенцию удачи?</b> Фиолетовая — из 10 глубокополоха или 5 контрафактной воды, шанс 100%. Остальные цвета — в разделе <a href="esencii/">«Эссенции и зелья»</a>.</p>
+<p><b>Как скрафтить осколки героя?</b> Рецепты осколков — в разделе <a href="oskolki/">«Осколки героев»</a>.</p>'''
+    search_js = '''<script src="data.js"></script>
+<script>
+(function(){var q=document.getElementById('q'),res=document.getElementById('res');
+function norm(s){return s.toLowerCase().replace(/ё/g,'е');}
+q.addEventListener('input',function(){var v=norm(q.value.trim());res.innerHTML='';if(v.length<2)return;
+var out=[];DC.forEach(function(r){var hit=norm(r[0]).indexOf(v)>=0;var ing=r[4].filter(function(i){return norm(i[0]).indexOf(v)>=0});
+if(hit||ing.length)out.push([hit?0:1,r,ing]);});
+out.sort(function(a,b){return a[0]-b[0]}).slice(0,40).forEach(function(o){var r=o[1],a=document.createElement('a');a.href=r[1]+'/#'+r[2];
+a.innerHTML=r[0]+(r[5]?' <small>· вариант '+r[5]+'</small>':'')+(r[3]!=null?' <small>· шанс '+r[3]+'%</small>':'')+(o[0]?' <small>· нужен: '+o[2].map(function(i){return i[0]+' ×'+i[1]}).join(', ')+'</small>':'');res.appendChild(a);});
+if(!out.length)res.innerHTML='<p>Ничего не нашлось. Попробуйте часть слова.</p>';});})();
+</script>'''
+    ld = [{'@context': 'https://schema.org', '@type': 'WebPage', 'name': 'Рецепты крафта «Крушители подземелий»', 'url': URL,
+           'description': 'Все известные рецепты крафта «Крушителей подземелий» с поиском и калькулятором.'}]
+    write('%s/index.html' % OUT, page(
+        'Крушители подземелий: все рецепты крафта, поиск и калькулятор',
+        'Рецепты крафта «Крушителей подземелий»: %d рецептов оружия, брони, мифических предметов, рун и осколков героев. Поиск по ингредиентам и калькулятор эссенций удачи.' % total,
+        URL, 'Крушители подземелий: рецепты крафта', crumb([('Каталог', '../'), ('Крушители подземелий', None)]), body, ld, extra=search_js))
+    print('Рецептов:', total, counts)
+
+
+if __name__ == '__main__':
+    main()

@@ -7,6 +7,7 @@
   "contact_text": "Telegram @konctantin777",
   "order": [
     "bot-dungeon-crusher",
+    "krushiteli-podzemeliy",
     "shoptitans-bot",
     "tiles-survive-bot",
     "trofei-rybalka2",
@@ -98,7 +99,8 @@
   "category_of": {
     "pechat-lko": "servisy",
     "shoptitans-spravochnik": "servisy",
-    "besplatnyy-mini-detektiv": "kvesty"
+    "besplatnyy-mini-detektiv": "kvesty",
+    "krushiteli-podzemeliy": "servisy"
   },
   "watch": [
     {
@@ -129,6 +131,7 @@
   ],
   "metrika_id": "113717630",
   "deep": [
-    "shoptitans-spravochnik"
+    "shoptitans-spravochnik",
+    "krushiteli-podzemeliy"
   ]
 }
