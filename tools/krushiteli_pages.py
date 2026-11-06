@@ -358,7 +358,7 @@ var q=new URLSearchParams(location.search).get('item');if(q){it.value=q;run();}
     RCLS = {'Обычный': 'обычный', 'Необычный': 'необычный', 'Редкий': 'редкий', 'Редчайший': 'редкий', 'Эпический': 'эпический',
             'Легендарный': 'легендарный', 'Мифический': 'мифический', 'Божественный': 'мифический'}
 
-    def hcard(h):
+    def hcard(h, hpre=''):
         types = [t for c, t in TYPES if c in h['cats']]
         how = h['how'] if not re.fullmatch(r'[\d\s.,]*', h['how'] or '') else ''
         st = ' · '.join('%s <b>%s</b>' % (k, h[v]) for k, v in (('HP', 'hp'), ('ATK', 'atk'), ('DEF', 'def'), ('WIS', 'wis'), ('AGI', 'agi'), ('Сумма', 'sum')) if h[v])
@@ -374,7 +374,7 @@ var q=new URLSearchParams(location.search).get('item');if(q){it.value=q;run();}
             extra += '<div class="use">Как получить: %s</div>' % E(how)
         return ('<div class="rc hc" id="%s" data-race="%s" data-cls="%s" data-rar="%s" data-types="%s" data-name="%s"><h3>%s</h3><div class="meta">%s</div>'
                 '<div class="meta">%s</div>%s%s</div>') % (slug(h['name']), E(h['race']), E(h['cls']), E(h['rar']), E('|'.join(types)), E(h['name'].lower()),
-                                                           E(h['name']), meta, st, ('<ul style="columns:1">%s</ul>' % sk) if sk else '', extra)
+                                                           '<a href="%s%s/">%s</a>' % (hpre, slug(h['name']), E(h['name'])), meta, st, ('<ul style="columns:1">%s</ul>' % sk) if sk else '', extra)
 
     if H:
         opt = lambda vals: ''.join('<option>%s</option>' % E(v) for v in vals)
@@ -398,10 +398,42 @@ var cards=[].slice.call(document.querySelectorAll('.hc'));function f(){var v=q.v
             [{'@context': 'https://schema.org', '@type': 'ItemList', 'name': 'Герои «Крушителей подземелий»', 'numberOfItems': len(H),
               'itemListElement': [{'@type': 'ListItem', 'position': i + 1, 'name': h['name'], 'url': URL + 'geroi/#' + slug(h['name'])} for i, h in enumerate(H)]}],
             extra=hjs))
+        # ---------- страница каждого героя ----------
+        for h in H:
+            sl = slug(h['name'])
+            same = [x for x in H if x is not h and x['race'] == h['race'] and h['race']][:6]
+            samec = [x for x in H if x is not h and x['cls'] == h['cls'] and h['cls'] and x not in same][:6]
+            types = [t for c, t in TYPES if c in h['cats']]
+            how = h['how'] if not re.fullmatch(r'[\d\s.,]*', h['how'] or '') else ''
+            facts = [('Раса', h['race']), ('Класс', h['cls']), ('Начальная редкость', h['rar']), ('Тип', ', '.join(types)),
+                     ('Особенность', h['feat']), ('Неприязнь', h['dislike']), ('Бонус в осаде', h['siege'])]
+            rows = ''.join('<tr><th>%s</th><td>%s</td></tr>' % (E(a), E(b)) for a, b in facts if b)
+            st = ''.join('<tr><th>%s</th><td class="n">%s</td></tr>' % (a, h[k]) for a, k in (('HP (здоровье)', 'hp'), ('ATK (атака)', 'atk'), ('DEF (защита)', 'def'), ('WIS (мудрость)', 'wis'), ('AGI (ловкость)', 'agi'), ('Сумма', 'sum')) if h[k])
+            sk = ''.join('<li>%s%s</li>' % (('<b>%s%s:</b> ' % (E(x['type']), (' ' + E(x['chance'])) if x['chance'] else '')) if x['type'] else '', E(x['text'])) for x in h['skills'])
+            rel = lambda xs: ', '.join('<a href="../%s/">%s</a>' % (slug(x['name']), E(x['name'])) for x in xs)
+            desc_bits = ', '.join(x for x in [h['race'], h['cls'], ('редкость — ' + h['rar'].lower()) if h['rar'] else ''] if x)
+            body = ('<p class="lead">%s — герой «Крушителей подземелий» (Dungeon Crusher)%s. Характеристики, способности%s и как получить героя.</p>' % (
+                        E(h['name']), (': ' + E(desc_bits)) if desc_bits else '', ', бонус в осаде' if h['siege'] else '') +
+                    '<div class="tbl-wrap"><table class="st">%s</table></div>' % rows +
+                    ('<h2>Характеристики</h2><div class="tbl-wrap"><table class="st">%s</table></div>' % st if st else '') +
+                    ('<h2>Способности</h2><ul>%s</ul>' % sk if sk else '') +
+                    ('<h2>Как получить</h2><p>%s</p>' % E(how) if how else '') +
+                    ('<h2>Герои той же расы</h2><p>%s</p>' % rel(same) if same else '') +
+                    ('<h2>Герои того же класса</h2><p>%s</p>' % rel(samec) if samec else '') +
+                    cta('../../../') + '<p><a href="../">← Все герои</a> · <a href="../../osada/">Осада</a> · <a href="../../">Рецепты крафта</a></p>')
+            extra_css = '<style>.tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--card);margin:10px 0 18px;max-width:640px}table.st{border-collapse:collapse;width:100%;font-size:15px}table.st th,table.st td{padding:8px 12px;border-bottom:1px solid var(--line);text-align:left}table.st th{color:var(--muted);font-weight:600;width:45%}table.st td.n{font-variant-numeric:tabular-nums;font-weight:700}</style>'
+            write('%s/geroi/%s/index.html' % (OUT, sl), page(
+                '%s — герой «Крушителей подземелий»: способности, характеристики, как получить' % h['name'],
+                '%s в «Крушителях подземелий»: %s, характеристики, способности%s и как получить.' % (h['name'], desc_bits or 'описание героя', ', бонус в осаде' if h['siege'] else ''),
+                URL + 'geroi/' + sl + '/', h['name'],
+                crumb([('Каталог', '../../../'), ('Крушители подземелий', '../../'), ('Герои', '../'), (h['name'], None)]), body,
+                [{'@context': 'https://schema.org', '@type': 'Article', 'headline': h['name'] + ' — герой «Крушителей подземелий»', 'inLanguage': 'ru'}],
+                extra=extra_css))
+
         hid = [h for h in H if 'Скрытые герои' in h['cats']]
         if hid:
             body = ('<p class="lead">Скрытые герои в «Крушителях подземелий» не продаются в магазине и не выпадают из сундуков: каждый открывается своим способом. '
-                    'Здесь — все %d известных скрытых героев, их характеристики, способности и условия получения.</p>' % len(hid)) +                 ''.join(hcard(h) for h in hid) + cta('../../') + '<p><a href="../geroi/">Все герои</a> · <a href="../">Рецепты крафта</a></p>'
+                    'Здесь — все %d известных скрытых героев, их характеристики, способности и условия получения.</p>' % len(hid)) +                 ''.join(hcard(h, '../geroi/') for h in hid) + cta('../../') + '<p><a href="../geroi/">Все герои</a> · <a href="../">Рецепты крафта</a></p>'
             write('%s/skrytye-geroi/index.html' % OUT, page(
                 'Скрытые герои «Крушителей подземелий»: как получить',
                 'Все скрытые герои «Крушителей подземелий»: как открыть каждого, характеристики и способности.',
