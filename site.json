@@ -10,8 +10,7 @@
     "krushiteli-podzemeliy",
     "shoptitans-bot",
     "tiles-survive-bot",
-    "tiles-survive-kody",
-    "roblox-kody",
+    "kody",
     "trofei-rybalka2",
     "raid-shadow-legends-bot",
     "pixel-starships-bot",
@@ -57,7 +56,9 @@
     "kvest-na-den-rozhdeniya-dlya-vzroslyh"
   ],
   "exclude": [
-    "tools"
+    "tools",
+    "roblox-kody",
+    "tiles-survive-kody"
   ],
   "indexnow_key": "ca96c76830b34778ff3c90622aed511b",
   "check_also": [
@@ -140,6 +141,6 @@
     "shoptitans-spravochnik",
     "krushiteli-podzemeliy",
     "krushiteli-podzemeliy/geroi",
-    "roblox-kody"
+    "kody"
   ]
 }

@@ -1,13 +1,13 @@
-"""Раздел «Коды Роблокс» из roblox-kody/data.json:
-  roblox-kody/index.html          — общая страница: куда вводить коды, список игр
-  roblox-kody/<slug>/index.html   — коды одной игры
+"""Раздел «Коды для игр» из kody/data.json (адреса короткие: /kody/<игра>/):
+  kody/index.html          — общая страница: куда вводить коды, список игр (Роблокс и мобильные)
+  kody/<slug>/index.html   — коды одной игры (поле platform: roblox | mobile)
 Обновление: правится data.json (коды, checked), затем python3 tools/roblox_kody.py && python3 tools/build_site.py.
 Реклама РСЯ: если в site.json задан rsya_block (например "R-A-1234567-1"), на каждую страницу ставится один баннер (не всплывающий).
 """
 import html, json, os
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 os.chdir(ROOT)
-OUT = 'roblox-kody'
+OUT = 'kody'
 BASE = 'https://fast-pay-store.github.io/digital-world/'
 E = lambda s: html.escape(str(s), quote=True)
 MON = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря']
@@ -74,12 +74,12 @@ def page(title, desc, url, h1, crumbs, body, ld):
 <link rel="stylesheet" href="{home}assets/site.css">
 {icon}
 <script type="application/ld+json">{ld}</script>
-<!-- Файл создаётся автоматически (tools/roblox_kody.py) из roblox-kody/data.json. Руками не править. -->
+<!-- Файл создаётся автоматически (tools/roblox_kody.py) из kody/data.json. Руками не править. -->
 {css}
 {adh}
 </head>
 <body>
-<header class="top"><div class="wrap"><a href="{home}">Digital World</a><span class="sp"></span><a class="all" href="{home}{OUT}/">Коды Роблокс</a></div></header>
+<header class="top"><div class="wrap"><a href="{home}">Digital World</a><span class="sp"></span><a class="all" href="{home}{OUT}/">Коды для игр</a></div></header>
 <main><div class="wrap">
 <nav class="crumbs" aria-label="Навигация"><ol>{crumbs}</ol></nav>
 <h1 style="font-size:clamp(28px,4vw,40px);line-height:1.15;margin:14px 0 10px">{h1}</h1>
@@ -129,12 +129,15 @@ HOW_FAQ = [
 def game_page(g, idx):
     url = BASE + OUT + '/' + g['slug'] + '/'
     n = len(g['active'])
-    title = 'Коды %s (%s) — %s' % (g['ru'], g['en'], MONTH) if g['ru'] != g['en'] else 'Коды %s — %s' % (g['ru'], MONTH)
+    same = g['en'].rstrip('!').lower() in g['ru'].lower()
+    title = 'Коды %s — %s' % (g['ru'], MONTH) if same else 'Коды %s (%s) — %s' % (g['ru'], g['en'], MONTH)
+    rb = g.get('platform', 'roblox') == 'roblox'
+    where = ' в Роблоксе' if rb else ''
     if n:
-        desc = 'Рабочие коды %s в Роблоксе на %s: %s. Как ввести код, что дают и список истёкших. Проверено %s.' % (
-            g['ru'], MONTH, ', '.join(c for c, _ in g['active'][:4]), DATE)
+        desc = 'Рабочие коды %s%s на %s: %s. Как ввести код, что дают и список истёкших. Проверено %s.' % (
+            g['ru'], where, MONTH, ', '.join(c for c, _ in g['active'][:4]), DATE)
     else:
-        desc = 'Есть ли коды %s в Роблоксе на %s: честный ответ, где их вводить и как получить награды бесплатно. Проверено %s.' % (g['ru'], MONTH, DATE)
+        desc = 'Есть ли коды %s%s на %s: честный ответ, где их вводить и как получить награды бесплатно. Проверено %s.' % (g['ru'], where, MONTH, DATE)
     b = ['<div class="upd">Проверено: %s</div>' % DATE, '<p>%s</p>' % g['about'], ad(True)]
     b.append('<h2 id="active">Рабочие коды %s</h2>' % E(g['ru']))
     if n:
@@ -147,12 +150,12 @@ def game_page(g, idx):
     b.append('<h2 id="how">Как ввести код в %s</h2><ol class="steps">%s</ol>' % (E(g['ru']), ''.join('<li>%s</li>' % x for x in g['how'])))
     if g['expired']:
         b.append('<h2>Истёкшие коды</h2><p class="exp">%s</p>' % ''.join('<s>%s</s>' % E(c) for c in g['expired']))
-    faq = g['faq'] + HOW_FAQ[1:3]
+    faq = g['faq'] + (HOW_FAQ[1:3] if rb else [])
     b.append('<h2>Вопросы</h2>' + faq_html(faq))
     b.append(ad())
     others = [x for x in D['games'] if x['slug'] != g['slug']]
     b.append('<h2>Коды других игр</h2><div class="gl">' + ''.join('<a href="../%s/">Коды %s<small>%s</small></a>' % (x['slug'], E(x['ru']), E(x['en'])) for x in others) +
-             '<a href="../">Все коды Роблокс<small>и куда их вводить</small></a></div>')
+             '<a href="../">Все коды для игр<small>и куда их вводить</small></a></div>')
     b.append(my_games('../../'))
     ld = [{'@context': 'https://schema.org', '@type': 'Article', 'headline': title, 'description': desc, 'url': url, 'inLanguage': 'ru',
            'dateModified': D['checked'], 'datePublished': '2026-11-06', 'author': {'@type': 'Organization', 'name': 'Digital World'}},
@@ -160,21 +163,25 @@ def game_page(g, idx):
               {'@type': 'Question', 'name': q, 'acceptedAnswer': {'@type': 'Answer', 'text': html.unescape(__import__('re').sub('<[^>]+>', '', a))}} for q, a in faq]},
           {'@context': 'https://schema.org', '@type': 'BreadcrumbList', 'itemListElement': [
               {'@type': 'ListItem', 'position': 1, 'name': 'Digital World', 'item': BASE},
-              {'@type': 'ListItem', 'position': 2, 'name': 'Коды Роблокс', 'item': BASE + OUT + '/'},
+              {'@type': 'ListItem', 'position': 2, 'name': 'Коды для игр', 'item': BASE + OUT + '/'},
               {'@type': 'ListItem', 'position': 3, 'name': 'Коды ' + g['ru'], 'item': url}]}]
-    h1 = 'Коды %s в Роблоксе — %s' % (g['ru'], MONTH)
-    write(OUT + '/' + g['slug'] + '/index.html', page(title, desc, url, h1, crumb([('Главная', '../../'), ('Коды Роблокс', '../'), ('Коды ' + g['ru'], None)]), '\n'.join(b), ld))
+    h1 = ('Коды %s в Роблоксе — %s' if g.get('platform', 'roblox') == 'roblox' else 'Коды %s — %s') % (g['ru'], MONTH)
+    write(OUT + '/' + g['slug'] + '/index.html', page(title, desc, url, h1, crumb([('Главная', '../../'), ('Коды для игр', '../'), ('Коды ' + g['ru'], None)]), '\n'.join(b), ld))
 
 
 def hub():
     url = BASE + OUT + '/'
-    title = 'Коды Роблокс (%s) — рабочие коды игр и куда их вводить' % MONTH
-    desc = 'Рабочие коды для игр Роблокс на %s: 99 ночей в лесу, Найди иглу, бокс, волейбол, Построй пирамиду, ММ2. Куда вводить коды в Роблокс на ПК и телефоне. Проверено %s.' % (MONTH, DATE)
+    title = 'Коды для игр и Роблокс (%s) — рабочие коды и куда их вводить' % MONTH
+    desc = 'Рабочие коды для игр Роблокс и мобильных игр на %s: 99 ночей в лесу, Найди иглу, бокс, волейбол, Построй пирамиду, ММ2, Tiles Survive. Куда вводить коды в Роблокс. Проверено %s.' % (MONTH, DATE)
+    def tiles(lst):
+        return '<div class="gl">' + ''.join('<a href="%s/">Коды %s<small>%s · %s</small></a>' % (g['slug'], E(g['ru']), E(g['en']),
+                ('рабочих: %d' % len(g['active'])) if g['active'] else 'кодов нет') for g in lst) + '</div>'
+    rbx = [g for g in D['games'] if g.get('platform', 'roblox') == 'roblox']
+    mob = [g for g in D['games'] if g.get('platform', 'roblox') != 'roblox']
     b = ['<div class="upd">Проверено: %s</div>' % DATE,
-         '<p>Здесь собраны коды популярных игр Роблокса на русском. Мы сверяем каждый код по нескольким трекерам и честно отмечаем, какие точно работают, а какие — под вопросом. Без «кодов на робуксы» и прочего обмана.</p>', ad(True),
-         '<h2>Коды по играм</h2><div class="gl">' + ''.join(
-             '<a href="%s/">Коды %s<small>%s · %s</small></a>' % (g['slug'], E(g['ru']), E(g['en']),
-                                                                  ('рабочих: %d' % len(g['active'])) if g['active'] else 'кодов нет') for g in D['games']) + '</div>',
+         '<p>Здесь собраны коды популярных игр Роблокса и мобильных игр на русском. Мы сверяем каждый код по нескольким трекерам и честно отмечаем, какие точно работают, а какие — под вопросом. Без «кодов на робуксы» и прочего обмана.</p>', ad(True),
+         '<h2>Коды для игр Роблокс</h2>' + tiles(rbx),
+         ('<h2>Коды для мобильных игр</h2>' + tiles(mob)) if mob else '',
          '<h2 id="kuda">Куда вводить коды в Роблокс</h2>',
          '<p>В Роблоксе три разных вида кодов, и вводятся они в разных местах:</p><ol class="steps">'
          '<li><b>Коды игр</b> (как на этом сайте) — внутри конкретной игры. Ищите кнопку «Codes», значок птички Twitter, книжку или пункт в магазине. Код одной игры в другой не работает.</li>'
@@ -184,7 +191,7 @@ def hub():
     ld = [{'@context': 'https://schema.org', '@type': 'CollectionPage', 'name': title, 'description': desc, 'url': url, 'inLanguage': 'ru', 'dateModified': D['checked']},
           {'@context': 'https://schema.org', '@type': 'FAQPage', 'mainEntity': [
               {'@type': 'Question', 'name': q, 'acceptedAnswer': {'@type': 'Answer', 'text': __import__('re').sub('<[^>]+>', '', a)}} for q, a in HOW_FAQ]}]
-    write(OUT + '/index.html', page(title, desc, url, 'Коды Роблокс — %s' % MONTH, crumb([('Главная', '../'), ('Коды Роблокс', None)]), '\n'.join(b), ld))
+    write(OUT + '/index.html', page(title, desc, url, 'Коды для игр и Роблокс — %s' % MONTH, crumb([('Главная', '../'), ('Коды для игр', None)]), '\n'.join(b), ld))
 
 
 if __name__ == '__main__':
