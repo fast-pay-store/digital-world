@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Пасьянсы — 13 в одном</title>
+<meta name="robots" content="noindex">
+<link rel="stylesheet" href="src/style.css">
+<!-- metrika:start (вставляется автоматически tools/build_site.py, номер — site.json → metrika_id) -->
+<script type="text/javascript">
+(function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};m[i].l=1*new Date();
+for(var j=0;j<document.scripts.length;j++){if(document.scripts[j].src===r){return;}}
+k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+(window,document,'script','https://mc.yandex.ru/metrika/tag.js?id=113717630','ym');
+ym(113717630,'init',{ssr:true,webvisor:true,clickmap:true,ecommerce:"dataLayer",referrer:document.referrer,url:location.href,accurateTrackBounce:true,trackLinks:true});
+document.addEventListener("click",function(e){var el=e.target;if(!el||!el.closest)return;
+if(el.closest(".digiseller-buy-standalone")&&el.closest("button,a,input[type=submit]")){ym(113717630,"reachGoal","checkout");return;}
+var a=el.closest("a[href]");if(!a)return;var h=a.href;
+var g=/widget\.html|oplata-lko\.html|oplata\.info|digiseller|keys\.shop|plati\.market/.test(h)?"buy":/drive\.google|disk\.yandex|vk\.(com|ru)\/topic-/.test(h)?"download":/vk\.(com|ru)\/app\d|roblox\.com\/games|script\.google\.com/.test(h)?"play":/t\.me\/|vk\.(com|ru)\/board/.test(h)?"contact":"";
+if(g)ym(113717630,"reachGoal",g);},true);
+</script>
+<noscript><div><img src="https://mc.yandex.ru/watch/113717630" style="position:absolute;left:-9999px" alt=""></div></noscript>
+<!-- metrika:end -->
+</head>
+<body>
+<div id="app">
+  <div id="menu">
+    <div class="mwrap">
+      <div class="mhead"><h1>Пасьянсы</h1><p>13 разных пасьянсов в одной игре</p></div>
+      <div class="mtop" id="mtop"></div>
+      <div id="glist"></div>
+      <div class="wishline" id="wishline"></div>
+      <div class="mfoot"><button class="btn" id="bColl"></button><button class="btn" id="bSnd"></button><button class="btn" id="bMus"></button></div>
+    </div>
+  </div>
+  <div id="play" class="hide">
+    <div class="bar top"><button class="btn round" id="bMenu" aria-label="К пасьянсам"></button><div class="ttl"><b id="gName"></b><span id="gSub"></span></div><div class="stat"><span id="gMoves"></span><span id="gTime"></span></div><button class="btn wish" id="bWish"></button></div>
+    <div id="table"></div>
+    <div class="bar bot"><button class="btn" id="bNew"></button><button class="btn" id="bUndo"></button><button class="btn" id="bHint"></button><button class="btn hide" id="bExtra"></button><button class="btn" id="bRules"></button></div>
+    <div id="stuck" class="hide">Ходов больше нет <button class="btn" id="sUndo">Отменить ход</button><button class="btn green" id="sNew">Новый расклад</button></div>
+  </div>
+  <div id="modal" class="hide"></div>
+  <div id="toast"></div>
+  <div id="startScreen">
+    <div class="sbox">
+      <div class="slogo"></div>
+      <h1>Пасьянсы</h1>
+      <p class="tag">13 разных пасьянсов · пасьянс на желание</p>
+      <button class="btn big green" id="bStart">Играть</button>
+      <p class="noads">Игра без всплывающей рекламы</p>
+    </div>
+  </div>
+</div>
+<script src="src/font.js"></script>
+<script src="src/platform.js"></script>
+<script src="src/retention.js" data-game="pa"></script>
+<script src="src/cards.js"></script>
+<script src="src/engine.js"></script>
+<script src="src/games/common.js"></script>
+<script src="src/games/klondike.js"></script>
+<script src="src/games/spider.js"></script>
+<script src="src/games/freecell.js"></script>
+<script src="src/games/pyramid.js"></script>
+<script src="src/games/tripeaks.js"></script>
+<script src="src/games/golf.js"></script>
+<script src="src/games/yukon.js"></script>
+<script src="src/games/forty.js"></script>
+<script src="src/games/montecarlo.js"></script>
+<script src="src/games/montana.js"></script>
+<script src="src/games/clock.js"></script>
+<script src="src/games/calculation.js"></script>
+<script src="src/games/accordion.js"></script>
+<script src="src/audio.js"></script>
+<script src="src/meta.js"></script>
+<script src="src/ui.js"></script>
+<script src="src/main.js"></script>
+</body>
+</html>

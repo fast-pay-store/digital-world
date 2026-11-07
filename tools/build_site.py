@@ -124,7 +124,7 @@ def main():
     # ---------- главная (по категориям) ----------
     cat_of = cfg.get('category_of', {})
     for p in pages:
-        p['category'] = p['category'] or cat_of.get(p['folder']) or ('kody' if p['folder'].startswith('kody-') else 'servisy')
+        p['category'] = p['category'] or cat_of.get(p['folder']) or ('kody' if p['folder'].startswith('kody-') else 'pasyansy' if p['folder'].startswith(('pasyans-', 'pasyansy-')) else 'servisy')
     groups = []
     for c in cfg.get('categories', [{'id': '', 'name': 'Страницы', 'about': ''}]):
         items = [p for p in listed if p['category'] == c['id'] or (not c['id'])]
