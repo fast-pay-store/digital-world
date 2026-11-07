@@ -95,6 +95,23 @@ def section(folder, s, alt):
         ' alt' if alt else '', E(s.get('id', '')), inner)
 
 
+def embed_html(e):
+    """Игра прямо на странице: page.json → "embed": {"src": "../durak-app/", "title": "...", "note": "..."}.
+    Хвост адреса (#r<КОД> — приглашение друга) передаётся в игру."""
+    if not e:
+        return ''
+    return ('<style>@media(max-width:640px){#igra .wrap{padding-left:0;padding-right:0}#igra .gb{border-radius:0!important}#igra .gbar{padding:0 14px}}</style>'
+            '<section class="s" id="igra" style="padding-top:8px"><div class="wrap">'
+            '<div class="gb" style="position:relative;background:#0f3d2e;border-radius:14px;overflow:hidden;height:min(82vh,760px);min-height:480px;box-shadow:0 6px 24px rgba(0,0,0,.18)">'
+            '<iframe id="gf" src="%s" title="%s" allow="fullscreen; clipboard-write; autoplay" allowfullscreen style="display:block;width:100%%;height:100%%;border:0"></iframe></div>'
+            '<div class="gbar" style="display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;margin:8px 0 0;color:var(--muted);font-size:14px">'
+            '<button type="button" id="fs" style="border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:8px;padding:7px 14px;cursor:pointer;font-size:14px">Во весь экран</button>'
+            '<span>%s</span></div></div></section>\n'
+            '<script>(function(){var f=document.getElementById("gf");if(location.hash)f.src=f.getAttribute("src")+location.hash;'
+            'document.getElementById("fs").onclick=function(){var r=f.requestFullscreen||f.webkitRequestFullscreen;if(r)r.call(f);else location.href=f.src};})();</script>'
+            % (E(e['src']), E(e.get('title', 'Игра')), E(e.get('note', ''))))
+
+
 def render(folder, cfg, all_pages):
     d = json.load(open(os.path.join(folder, 'page.json'), encoding='utf-8'))
     base = cfg['base_url'].rstrip('/') + '/'
@@ -179,6 +196,7 @@ def render(folder, cfg, all_pages):
 <div>{hero_img}</div>
 </div>
 </div>
+{embed}
 {sections}
 <section class="s"><div class="wrap"><h2>{others_h}</h2><div class="others">{others}</div></div></section>
 </main>
@@ -192,7 +210,7 @@ def render(folder, cfg, all_pages):
            robots=('\n<meta name="robots" content="noindex, follow">' if d.get('noindex') else ''), ld=json.dumps(ld, ensure_ascii=False), h1=E(d['h1']), cat_id=E(cat_id), cat_name=E(cat_name), lead=d['lead'], cta=buttons(d.get('hero_buttons')),
            note=pass_note, hero_img=hero_img, sections=sections, others=others_html, others_h=E(d.get('others_title', 'Другие программы и игры')),
            contacts=''.join('<a href="%s" target="_blank" rel="noopener">%s</a>' % (E(c['href']), E(c['text'])) for c in d.get('contacts', [])),
-           disclaimer=d.get('disclaimer', ''))
+           disclaimer=d.get('disclaimer', ''), embed=embed_html(d.get('embed')))
     with open(os.path.join(folder, 'index.html'), 'w', encoding='utf-8', newline='\n') as f:
         f.write(page)
     return len(page)
