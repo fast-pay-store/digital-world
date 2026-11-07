@@ -10,7 +10,7 @@
     "krushiteli-podzemeliy",
     "shoptitans-bot",
     "tiles-survive-bot",
-    "kody",
+    "kody-roblox",
     "trofei-rybalka2",
     "raid-shadow-legends-bot",
     "pixel-starships-bot",
@@ -58,7 +58,9 @@
   "exclude": [
     "tools",
     "roblox-kody",
-    "tiles-survive-kody"
+    "tiles-survive-kody",
+    "kody",
+    "kody-data"
   ],
   "indexnow_key": "ca96c76830b34778ff3c90622aed511b",
   "check_also": [
@@ -69,6 +71,11 @@
       "id": "boty",
       "name": "Боты для игр",
       "about": "Боты-кликеры и помощники для игр на ПК, в браузере и BlueStacks: демо-версия бесплатно, пароль 1234."
+    },
+    {
+      "id": "kody",
+      "name": "Коды для игр",
+      "about": "Рабочие коды для игр Роблокс и мобильных игр: что дают, как ввести, какие истекли. Проверяем каждый день."
     },
     {
       "id": "igry-vk",
@@ -140,7 +147,6 @@
   "deep": [
     "shoptitans-spravochnik",
     "krushiteli-podzemeliy",
-    "krushiteli-podzemeliy/geroi",
-    "kody"
+    "krushiteli-podzemeliy/geroi"
   ]
 }

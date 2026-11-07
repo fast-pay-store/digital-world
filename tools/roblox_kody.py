@@ -1,18 +1,19 @@
-"""Раздел «Коды для игр» из kody/data.json (адреса короткие: /kody/<игра>/):
-  kody/index.html          — общая страница: куда вводить коды, список игр (Роблокс и мобильные)
-  kody/<slug>/index.html   — коды одной игры (поле platform: roblox | mobile)
+"""Раздел «Коды для игр» из kody-data/data.json. Адреса плоские, без промежуточных папок:
+  kody-roblox/index.html      — общая страница: коды Роблокс, куда вводить коды, список всех игр
+  kody-<slug>/index.html      — коды одной игры (поле platform: roblox | mobile)
 Обновление: правится data.json (коды, checked), затем python3 tools/roblox_kody.py && python3 tools/build_site.py.
 Реклама РСЯ: если в site.json задан rsya_block (например "R-A-1234567-1"), на каждую страницу ставится один баннер (не всплывающий).
 """
 import html, json, os
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 os.chdir(ROOT)
-OUT = 'kody'
+OUT = 'kody-roblox'          # общая страница «Коды Роблокс + куда вводить»
+GP = 'kody-'                 # страницы игр лежат сразу в корне: kody-<slug>/
 BASE = 'https://fast-pay-store.github.io/digital-world/'
 E = lambda s: html.escape(str(s), quote=True)
 MON = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря']
 MON1 = ['январь', 'февраль', 'март', 'апрель', 'май', 'июнь', 'июль', 'август', 'сентябрь', 'октябрь', 'ноябрь', 'декабрь']
-D = json.load(open(OUT + '/data.json', encoding='utf-8'))
+D = json.load(open('kody-data/data.json', encoding='utf-8'))
 CFG = json.load(open('site.json', encoding='utf-8'))
 y, m, dd = map(int, D['checked'].split('-'))
 DATE = '%d %s %d' % (dd, MON[m - 1], y)
@@ -74,7 +75,7 @@ def page(title, desc, url, h1, crumbs, body, ld):
 <link rel="stylesheet" href="{home}assets/site.css">
 {icon}
 <script type="application/ld+json">{ld}</script>
-<!-- Файл создаётся автоматически (tools/roblox_kody.py) из kody/data.json. Руками не править. -->
+<!-- Файл создаётся автоматически (tools/roblox_kody.py) из kody-data/data.json. Руками не править. -->
 {css}
 {adh}
 </head>
@@ -127,7 +128,7 @@ HOW_FAQ = [
 
 
 def game_page(g, idx):
-    url = BASE + OUT + '/' + g['slug'] + '/'
+    url = BASE + GP + g['slug'] + '/'
     n = len(g['active'])
     same = g['en'].rstrip('!').lower() in g['ru'].lower()
     title = 'Коды %s — %s' % (g['ru'], MONTH) if same else 'Коды %s (%s) — %s' % (g['ru'], g['en'], MONTH)
@@ -154,9 +155,9 @@ def game_page(g, idx):
     b.append('<h2>Вопросы</h2>' + faq_html(faq))
     b.append(ad())
     others = [x for x in D['games'] if x['slug'] != g['slug']]
-    b.append('<h2>Коды других игр</h2><div class="gl">' + ''.join('<a href="../%s/">Коды %s<small>%s</small></a>' % (x['slug'], E(x['ru']), E(x['en'])) for x in others) +
-             '<a href="../">Все коды для игр<small>и куда их вводить</small></a></div>')
-    b.append(my_games('../../'))
+    b.append('<h2>Коды других игр</h2><div class="gl">' + ''.join('<a href="../%s%s/">Коды %s<small>%s</small></a>' % (GP, x['slug'], E(x['ru']), E(x['en'])) for x in others) +
+             '<a href="../%s/">Все коды для игр<small>и куда их вводить</small></a></div>' % OUT)
+    b.append(my_games('../'))
     ld = [{'@context': 'https://schema.org', '@type': 'Article', 'headline': title, 'description': desc, 'url': url, 'inLanguage': 'ru',
            'dateModified': D['checked'], 'datePublished': '2026-11-06', 'author': {'@type': 'Organization', 'name': 'Digital World'}},
           {'@context': 'https://schema.org', '@type': 'FAQPage', 'mainEntity': [
@@ -166,15 +167,15 @@ def game_page(g, idx):
               {'@type': 'ListItem', 'position': 2, 'name': 'Коды для игр', 'item': BASE + OUT + '/'},
               {'@type': 'ListItem', 'position': 3, 'name': 'Коды ' + g['ru'], 'item': url}]}]
     h1 = ('Коды %s в Роблоксе — %s' if g.get('platform', 'roblox') == 'roblox' else 'Коды %s — %s') % (g['ru'], MONTH)
-    write(OUT + '/' + g['slug'] + '/index.html', page(title, desc, url, h1, crumb([('Главная', '../../'), ('Коды для игр', '../'), ('Коды ' + g['ru'], None)]), '\n'.join(b), ld))
+    write(GP + g['slug'] + '/index.html', page(title, desc, url, h1, crumb([('Главная', '../'), ('Коды для игр', '../' + OUT + '/'), ('Коды ' + g['ru'], None)]), '\n'.join(b), ld))
 
 
 def hub():
     url = BASE + OUT + '/'
-    title = 'Коды для игр и Роблокс (%s) — рабочие коды и куда их вводить' % MONTH
+    title = 'Коды Роблокс (%s) — рабочие коды игр и куда их вводить' % MONTH
     desc = 'Рабочие коды для игр Роблокс и мобильных игр на %s: 99 ночей в лесу, Найди иглу, бокс, волейбол, Построй пирамиду, ММ2, Tiles Survive. Куда вводить коды в Роблокс. Проверено %s.' % (MONTH, DATE)
     def tiles(lst):
-        return '<div class="gl">' + ''.join('<a href="%s/">Коды %s<small>%s · %s</small></a>' % (g['slug'], E(g['ru']), E(g['en']),
+        return '<div class="gl">' + ''.join('<a href="../' + GP + '%s/">Коды %s<small>%s · %s</small></a>' % (g['slug'], E(g['ru']), E(g['en']),
                 ('рабочих: %d' % len(g['active'])) if g['active'] else 'кодов нет') for g in lst) + '</div>'
     rbx = [g for g in D['games'] if g.get('platform', 'roblox') == 'roblox']
     mob = [g for g in D['games'] if g.get('platform', 'roblox') != 'roblox']
@@ -191,7 +192,7 @@ def hub():
     ld = [{'@context': 'https://schema.org', '@type': 'CollectionPage', 'name': title, 'description': desc, 'url': url, 'inLanguage': 'ru', 'dateModified': D['checked']},
           {'@context': 'https://schema.org', '@type': 'FAQPage', 'mainEntity': [
               {'@type': 'Question', 'name': q, 'acceptedAnswer': {'@type': 'Answer', 'text': __import__('re').sub('<[^>]+>', '', a)}} for q, a in HOW_FAQ]}]
-    write(OUT + '/index.html', page(title, desc, url, 'Коды для игр и Роблокс — %s' % MONTH, crumb([('Главная', '../'), ('Коды для игр', None)]), '\n'.join(b), ld))
+    write(OUT + '/index.html', page(title, desc, url, 'Коды Роблокс и других игр — %s' % MONTH, crumb([('Главная', '../'), ('Коды для игр', None)]), '\n'.join(b), ld))
 
 
 if __name__ == '__main__':
