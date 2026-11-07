@@ -39,16 +39,20 @@ JS = '''<script>document.addEventListener('click',function(e){var b=e.target.clo
 try{navigator.clipboard.writeText(t);b.textContent='Скопировано';setTimeout(function(){b.textContent='Копировать'},1500)}catch(x){}});</script>'''
 
 
-def ad():
+_AD = {'n': 0}
+
+
+def ad(first=False):
+    # один баннер на страницу (одинаковый renderTo дважды на странице РСЯ не допускает)
     blk = str(CFG.get('rsya_block') or '').strip()
-    if not blk:
+    if not blk or not first:
         return ''
     i = 'yandex_rtb_' + blk
     return ('<div class="ad"><div id="%s"></div></div>\n<script>window.yaContextCb=window.yaContextCb||[];window.yaContextCb.push(function(){Ya.Context.AdvManager.render({"blockId":"%s","renderTo":"%s"})})</script>' % (i, blk, i))
 
 
 def ad_head():
-    return '<script>window.yaContextCb=window.yaContextCb||[]</script>\n<script src="https://yandex.ru/ads/system/context.js" async></script>' if CFG.get('rsya_block') else ''
+    return '<!-- Yandex.RTB -->\n<script>window.yaContextCb=window.yaContextCb||[]</script>\n<script src="https://yandex.ru/ads/system/context.js" async></script>' if CFG.get('rsya_block') else ''
 
 
 def page(title, desc, url, h1, crumbs, body, ld):
@@ -131,7 +135,7 @@ def game_page(g, idx):
             g['ru'], MONTH, ', '.join(c for c, _ in g['active'][:4]), DATE)
     else:
         desc = 'Есть ли коды %s в Роблоксе на %s: честный ответ, где их вводить и как получить награды бесплатно. Проверено %s.' % (g['ru'], MONTH, DATE)
-    b = ['<div class="upd">Проверено: %s</div>' % DATE, '<p>%s</p>' % g['about'], ad()]
+    b = ['<div class="upd">Проверено: %s</div>' % DATE, '<p>%s</p>' % g['about'], ad(True)]
     b.append('<h2 id="active">Рабочие коды %s</h2>' % E(g['ru']))
     if n:
         b.append('<p>Эти коды работают по данным большинства трекеров на %s:</p>' % DATE + codes(g['active']))
@@ -167,7 +171,7 @@ def hub():
     title = 'Коды Роблокс (%s) — рабочие коды игр и куда их вводить' % MONTH
     desc = 'Рабочие коды для игр Роблокс на %s: 99 ночей в лесу, Найди иглу, бокс, волейбол, Построй пирамиду, ММ2. Куда вводить коды в Роблокс на ПК и телефоне. Проверено %s.' % (MONTH, DATE)
     b = ['<div class="upd">Проверено: %s</div>' % DATE,
-         '<p>Здесь собраны коды популярных игр Роблокса на русском. Мы сверяем каждый код по нескольким трекерам и честно отмечаем, какие точно работают, а какие — под вопросом. Без «кодов на робуксы» и прочего обмана.</p>', ad(),
+         '<p>Здесь собраны коды популярных игр Роблокса на русском. Мы сверяем каждый код по нескольким трекерам и честно отмечаем, какие точно работают, а какие — под вопросом. Без «кодов на робуксы» и прочего обмана.</p>', ad(True),
          '<h2>Коды по играм</h2><div class="gl">' + ''.join(
              '<a href="%s/">Коды %s<small>%s · %s</small></a>' % (g['slug'], E(g['ru']), E(g['en']),
                                                                   ('рабочих: %d' % len(g['active'])) if g['active'] else 'кодов нет') for g in D['games']) + '</div>',
