@@ -57,6 +57,7 @@
   ],
   "exclude": [
     "tools",
+    "files",
     "roblox-kody",
     "tiles-survive-kody",
     "kody",
