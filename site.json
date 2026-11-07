@@ -133,7 +133,8 @@
       "must_contain": "digiseller"
     }
   ],
-  "rsya_block": "R-A-20353722-1",
+  "rsya_block": "",
+  "rsya_block_off_note": "РСЯ отклонила сайт 07.11.2026 (мало вовлечения). Блок R-A-20353722-1, площадка 20353722. Вписать блок в rsya_block и пересобрать после повторной модерации.",
   "metrika_id": "113717630",
   "deep": [
     "shoptitans-spravochnik",
