@@ -49,7 +49,7 @@ def main():
 
     import html as _html
     short = re.sub(r'\s+', ' ', description).strip()[:160]
-    page_url = 'https://fast-pay-store.github.io/digital-world/' + folder_name + '/'
+    page_url = 'https://digitalworld-games.ru/' + folder_name + '/'
     html_content = template.replace('{{title}}', _html.escape(title))\
                            .replace('{{description}}', _html.escape(description).replace('\n\n', '</p><p>'))\
                            .replace('{{description_short}}', _html.escape(short, quote=True))\

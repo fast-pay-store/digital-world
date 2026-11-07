@@ -9,7 +9,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 os.chdir(ROOT)
 OUT = 'kody-roblox'          # общая страница «Коды Роблокс + куда вводить»
 GP = 'kody-'                 # страницы игр лежат сразу в корне: kody-<slug>/
-BASE = 'https://fast-pay-store.github.io/digital-world/'
+BASE = 'https://digitalworld-games.ru/'
 E = lambda s: html.escape(str(s), quote=True)
 MON = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря']
 MON1 = ['январь', 'февраль', 'март', 'апрель', 'май', 'июнь', 'июль', 'август', 'сентябрь', 'октябрь', 'ноябрь', 'декабрь']

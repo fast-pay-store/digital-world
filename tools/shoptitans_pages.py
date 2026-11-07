@@ -15,7 +15,7 @@ import re
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 os.chdir(ROOT)
 OUT = 'shoptitans-spravochnik'
-BASE = 'https://fast-pay-store.github.io/digital-world/'
+BASE = 'https://digitalworld-games.ru/'
 URL = BASE + OUT + '/'
 BOT = 'shoptitans-bot/'
 QUAL = ['Обычное', 'Превосходное', 'Безупречное', 'Эпическое', 'Легендарное']

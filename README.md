@@ -1,6 +1,6 @@
 # Digital World
 
-Сайт: **https://fast-pay-store.github.io/digital-world/**
+Сайт: **https://digitalworld-games.ru/**
 
 Каталог: боты для игр, игры ВКонтакте, игры Roblox, другие игры, сервисы и гайды. Каждая страница — отдельная папка с `index.html`.
 
@@ -36,7 +36,7 @@
 ## Поисковики
 
 * Добавьте сайт в **Яндекс.Вебмастер** и **Google Search Console**, укажите sitemap:
-  `https://fast-pay-store.github.io/digital-world/sitemap.xml`
+  `https://digitalworld-games.ru/sitemap.xml`
 * `robots.txt` и переадресация старых адресов (`fast-pay-store.github.io/bot-dungeon-crusher` и др.) — в репозитории
   [fast-pay-store.github.io](https://github.com/fast-pay-store/fast-pay-store.github.io).
 

@@ -10,7 +10,7 @@ from collections import defaultdict, OrderedDict
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 os.chdir(ROOT)
 OUT = 'krushiteli-podzemeliy'
-BASE = 'https://fast-pay-store.github.io/digital-world/'
+BASE = 'https://digitalworld-games.ru/'
 URL = BASE + OUT + '/'
 BOT = 'bot-dungeon-crusher/'
 WIKI = 'https://dungeoncrusher.fandom.com/ru/wiki/'

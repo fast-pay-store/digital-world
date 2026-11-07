@@ -163,9 +163,9 @@ def render(folder, cfg, all_pages):
 <meta property="og:locale" content="ru_RU">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="stylesheet" href="../assets/site.css">
-<link rel="icon" href="https://fast-pay-store.github.io/digital-world/assets/favicon.svg" type="image/svg+xml">
-<link rel="icon" href="https://fast-pay-store.github.io/digital-world/assets/favicon-120.png" sizes="120x120" type="image/png">
-<link rel="apple-touch-icon" href="https://fast-pay-store.github.io/digital-world/assets/apple-touch-icon.png">
+<link rel="icon" href="https://digitalworld-games.ru/assets/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="https://digitalworld-games.ru/assets/favicon-120.png" sizes="120x120" type="image/png">
+<link rel="apple-touch-icon" href="https://digitalworld-games.ru/assets/apple-touch-icon.png">
 <script type="application/ld+json">{ld}</script>
 <!-- Файл создаётся автоматически из page.json (tools/render_pages.py). Текст правьте в page.json. -->
 </head>

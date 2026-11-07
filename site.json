@@ -2,7 +2,7 @@
   "title": "Digital World — боты для игр, игры ВКонтакте и Roblox, онлайн-сервисы",
   "heading": "Digital World",
   "description": "Боты-кликеры для игр (Dungeon Crusher, Shop Titans, Raid, Tiles Survive и др.), бесплатные игры ВКонтакте без всплывающей рекламы, игры Roblox с нейросетью и онлайн-сервисы.",
-  "base_url": "https://fast-pay-store.github.io/digital-world/",
+  "base_url": "https://digitalworld-games.ru/",
   "contact_url": "https://t.me/konctantin777",
   "contact_text": "Telegram @konctantin777",
   "order": [
@@ -127,7 +127,7 @@
     },
     {
       "name": "Страница оплаты лицензии (widget.html)",
-      "url": "https://fast-pay-store.github.io/digital-world/widget.html",
+      "url": "https://digitalworld-games.ru/widget.html",
       "must_contain": "digiseller"
     },
     {
@@ -137,7 +137,7 @@
     },
     {
       "name": "Страница оплаты Печати ЛКО (oplata-lko.html)",
-      "url": "https://fast-pay-store.github.io/digital-world/oplata-lko.html",
+      "url": "https://digitalworld-games.ru/oplata-lko.html",
       "must_contain": "digiseller"
     }
   ],
