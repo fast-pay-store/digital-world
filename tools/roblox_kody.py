@@ -110,6 +110,17 @@ def my_games(prefix):
             ''.join('<a href="%s%s/">%s<small>Игра Roblox против ИИ</small></a>' % (prefix, s, E(t)) for s, t in MY_GAMES) + '</div>')
 
 
+ROBUX_URL = 'https://plati.market/itm/3531526?ai=816991'  # партнёрская ссылка Plati (агент 816991, комиссия продавца ~1%)
+
+
+def robux_box():
+    return ('<div class="note"><b>Робуксы по кодам не раздают.</b> Ни один код игры не даёт робуксы, а сайты «бесплатных робуксов» крадут аккаунты. '
+            'Если робуксы всё-таки нужны, безопасный способ — официальная подарочная карта Roblox: '
+            '<a href="%s" target="_blank" rel="sponsored nofollow noopener">коды Roblox на 50–36 000 робуксов на Plati</a> '
+            '(самый продаваемый товар, более 250 тыс. покупок; вводится на roblox.com/redeem). '
+            '<small>Партнёрская ссылка: при покупке сайт получает небольшой процент, цена для вас та же.</small></div>' % ROBUX_URL)
+
+
 def faq_html(faq):
     return '<div class="faq">' + ''.join('<details><summary>%s</summary><p>%s</p></details>' % (E(q), a) for q, a in faq) + '</div>'
 
@@ -148,6 +159,8 @@ def game_page(g, idx):
     if g['maybe']:
         b.append('<h3>Могут работать — попробуйте</h3><p>По этим кодам трекеры расходятся: одни пишут, что работают, другие — что истекли.</p><div class="maybe">' + codes(g['maybe']) + '</div>')
     b.append('<div class="note">%s</div>' % g['note'])
+    if rb:
+        b.append(robux_box())
     b.append('<h2 id="how">Как ввести код в %s</h2><ol class="steps">%s</ol>' % (E(g['ru']), ''.join('<li>%s</li>' % x for x in g['how'])))
     if g['expired']:
         b.append('<h2>Истёкшие коды</h2><p class="exp">%s</p>' % ''.join('<s>%s</s>' % E(c) for c in g['expired']))
@@ -188,6 +201,7 @@ def hub():
          '<li><b>Коды игр</b> (как на этом сайте) — внутри конкретной игры. Ищите кнопку «Codes», значок птички Twitter, книжку или пункт в магазине. Код одной игры в другой не работает.</li>'
          '<li><b>Промокоды Роблокса</b> на бесплатные вещи для аватара — на сайте roblox.com/promocodes (в браузере, и с телефона тоже).</li>'
          '<li><b>Подарочные карты</b> на робуксы и Premium — на roblox.com/redeem. Такие карты продаются в магазинах за деньги.</li></ol>',
+         robux_box(),
          '<h2>Вопросы</h2>' + faq_html(HOW_FAQ), ad(), my_games('../')]
     ld = [{'@context': 'https://schema.org', '@type': 'CollectionPage', 'name': title, 'description': desc, 'url': url, 'inLanguage': 'ru', 'dateModified': D['checked']},
           {'@context': 'https://schema.org', '@type': 'FAQPage', 'mainEntity': [
