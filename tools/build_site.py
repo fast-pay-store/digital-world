@@ -198,7 +198,7 @@ ym(%(id)s,'init',{ssr:true,webvisor:true,clickmap:true,ecommerce:"dataLayer",ref
 document.addEventListener("click",function(e){var el=e.target;if(!el||!el.closest)return;
 if(el.closest(".digiseller-buy-standalone")&&el.closest("button,a,input[type=submit]")){ym(%(id)s,"reachGoal","checkout");return;}
 var a=el.closest("a[href]");if(!a)return;var h=a.href;
-var g=/widget\\.html|oplata-lko\\.html|oplata\\.info|digiseller|keys\\.shop|plati\\.market/.test(h)?"buy":/drive\\.google|disk\\.yandex|vk\\.(com|ru)\\/topic-/.test(h)?"download":/vk\\.(com|ru)\\/app\\d|roblox\\.com\\/games|script\\.google\\.com/.test(h)?"play":/t\\.me\\/|vk\\.(com|ru)\\/board/.test(h)?"contact":"";
+var g=/widget\\.html|oplata-lko\\.html|oplata\\.info|digiseller|keys\\.shop|plati\\.market/.test(h)?"buy":/drive\\.google|disk\\.yandex/.test(h)?"download":/vk\\.(com|ru)\\/app\\d|roblox\\.com\\/games|script\\.google\\.com/.test(h)?"play":/t\\.me\\/|vk\\.(com|ru)\\/(board|topic-)/.test(h)?"contact":"";
 if(g)ym(%(id)s,"reachGoal",g);},true);
 </script>
 <noscript><div><img src="https://mc.yandex.ru/watch/%(id)s" style="position:absolute;left:-9999px" alt=""></div></noscript>
