@@ -1,0 +1,54 @@
+{
+  "noindex": true,
+  "category": "boty",
+  "title": "Trophy_Fishing_1 Бот кликер — скачать демо",
+  "h1": "Trophy_Fishing_1 Бот кликер",
+  "description": "Trophy_Fishing_1 Бот кликер. Скачать демо-версию и обсудить — в теме ВКонтакте.",
+  "app_name": "Trophy_Fishing_1 Бот кликер",
+  "lead": "Черновик страницы — описание будет дополнено.",
+  "hero_image": {
+    "name": "trophy-fishing-1-bot-kliker-bot-oblozhka",
+    "alt": "Trophy_Fishing_1 Бот кликер"
+  },
+  "hero_buttons": [
+    {
+      "text": "Скачать в теме ВКонтакте",
+      "href": "https://vk.com/topic-215704478_69648930"
+    }
+  ],
+  "hero_note": "",
+  "sections": [
+    {
+      "id": "about",
+      "kicker": "О боте",
+      "h2": "Описание из темы ВКонтакте",
+      "paras": [
+        "Работает в ВК (",
+        "Браузер Хром. Должна быть видна панель быстрых закладок. Окно где поплавок, сделать минимальным по размеру и поставить в самый угол.",
+        "Пароль: 123",
+        "Сейчас просто ловит.<br>Ещё какие то настройки ?"
+      ],
+      "buttons": [
+        {
+          "text": "Открыть тему ВКонтакте",
+          "href": "https://vk.com/topic-215704478_69648930"
+        }
+      ]
+    }
+  ],
+  "contacts": [
+    {
+      "text": "Telegram",
+      "href": "https://t.me/+c6TUEr4cOjtiYmIy"
+    },
+    {
+      "text": "ВКонтакте",
+      "href": "https://vk.com/board215704478"
+    },
+    {
+      "text": "Разработчик: @konctantin777",
+      "href": "https://t.me/konctantin777"
+    }
+  ],
+  "disclaimer": "Бот — неофициальная программа и не связан с разработчиками игры «Trophy_Fishing_1 Бот кликер»."
+}
